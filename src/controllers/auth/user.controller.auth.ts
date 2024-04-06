@@ -17,7 +17,9 @@ import {sendMail, getTemplateHtml} from "../../config/config.mail";
 
 export const register = async (req: Request, res: Response): Promise<Response> => {
    //declaramos los parametros recibidos en el req.body
-   const { nombre, email, telefono, clave, status, origen,  tokenFacebook, tokenGoogle, perfil} = req?.body
+   const { nombre, email, telefono, clave, estatus, origen, fbkgoog_id, tokenFacebook, tokenGoogle, perfil} = req?.body
+
+   //validar el origen para saber si viene de local
    if(!email || !clave || !telefono || !nombre ){
       return res.status(409).json({
          data_send: "",         
@@ -36,29 +38,33 @@ export const register = async (req: Request, res: Response): Promise<Response> =
       })
    }
    
+   const lastUser = await User.findOne().sort({afiliado: -1});
+   const lastUserId = lastUser ? lastUser.afiliado : 0;
+   let afiliado: number = lastUserId + 1;
    const newUser = new User({
+      afiliado: afiliado,
+      fbkgoog_id: "0",
       nombre,
       email,
       telefono, 
       clave, 
-      status, 
+      estatus, 
       origen, 
       tokenFacebook,
       tokenGoogle, 
       perfil
-   })
+   });
 
    try {
       
       await newUser.save();
       const userId = newUser._id;   
-
+      
       //obtenemos un token
-      const token = getToken({ email, userId });
-      console.log('email que recibe correo: ',email);
-      console.log('token: ',token);
+      const token = getToken({ email, userId, afiliado });
+   
       //Obtener template html      
-      const html = getTemplateHtml(nombre, token);
+      const html = getTemplateHtml(nombre, token, afiliado);
 
       //Enviar email
       await sendMail(email, 'Confirmar cuenta', html);

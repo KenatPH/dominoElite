@@ -17,6 +17,8 @@ import passport from "passport";
 const router = Router();
 
 
-router.get('/home', passport.authenticate('jwt', {session: false}), home);
+router.get('/special', (req, res)=>{   
+   res.send("Bienvenido a la página de especial")
+});
 
 export default router;

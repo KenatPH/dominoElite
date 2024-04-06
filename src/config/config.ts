@@ -11,7 +11,7 @@
 export default {
    JWT_SECRET  : process.env.JWT_SECRET || 'BioonixDominosomeSecretKey17$*',
    DB: { 
-      URI   : process.env.MONGODB_URI || "mongodb://localhost/domino",
+      URI   : process.env.MONGODB_URI || "mongodb://localhost/dominoelite",
       USER  : process.env.MONGODB_USER,
       PASW  : process.env.MONGODB_PASSW
    },
@@ -19,5 +19,11 @@ export default {
       correo: "jlramirez17@gmail.com",
       passw: "wbhlgttewcrahgvr",
       path_confirm: "http://localhost:3000/auth/confirm/"
+   },
+   FBK: {
+      clientID: process.env.FBK_ID || "730716712424276",
+      clientSecret: process.env.FBK_SECRET || "7080d44bea7e664b3b9acc722620a202",
+      callBackUrl: "http://localhost:3000/auth/facebook/callback",
+      secretSession: "Aguila17_mejorando_el_mundo"
    }
 }

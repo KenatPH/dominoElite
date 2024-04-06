@@ -18,7 +18,7 @@ import {sendMail, getTemplateHtml} from "../config/config.mail";
 export const update = async (req: Request, res: Response): Promise<Response> => {
    try {
       const { id } = req.params;
-      const { nombre, telefono, status, perfil } = req.body;
+      const { nombre, telefono, estatus, perfil } = req.body;
 
       // Find the user by userId
       const user = await User.findById(id);
@@ -35,7 +35,7 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
       user.nombre = nombre;      
       user.telefono = telefono;      
       user.perfil = perfil;
-      user.status = status;
+      user.estatus = estatus;
       /* user.email = email || user.email;
       user.clave = clave || user.clave;
       user.origen = origen || user.origen;
@@ -51,7 +51,7 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
                      "email": user.email,
                      "telefono": user.telefono,
                      "perfil": user.perfil,
-                     "status": user.status,
+                     "estatus": user.estatus,
          },
          num_status: 0,
          msg_status: 'User updated successfully'

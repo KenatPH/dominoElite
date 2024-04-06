@@ -21,20 +21,14 @@ const opts: StrategyOptions = {
 
 export default new Strategy(opts, async (payload, done) => {
    try {
-      console.log('id: ',payload.nombre)
-      const user = await User.findById(payload.id);
+      console.log('data: ',JSON.stringify(payload))
+      console.log('id: ',payload.data.id)
+      const user = await User.findById(payload.data.id);
       if(user) {
+         console.log('usuario autenticado');
          return done(null, user);
       }
-      return done(null, false);
-      /* await User.findById('660427df7cc1311e4a675261', (err:any, user:any) => {
-         if(err) return done(err, false);
-         if(user) {
-             return done(null, user);
-         } else {
-             return done(null, false);
-         }
-     }); */  
+      return done(null, false);     
    } catch (error) {
       console.log(error);
    }   

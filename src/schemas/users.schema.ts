@@ -8,7 +8,7 @@
   Descripción     : Api para enviar y manejar la información de Dominó
 */
 
-import { Schema, model, Document } from "mongoose";
+/* import { Schema, model, Document } from "mongoose";
 
 const  bcrypt = require("bcryptjs");
 const userSchema = new Schema({
@@ -60,4 +60,4 @@ userSchema.methods.comparePassword = async function(password: string): Promise<b
    return await bcrypt.compare(password, this.password);
 }
 
-export default model('User', userSchema);
+export default model('User', userSchema); */

@@ -72,7 +72,7 @@ Esta es una API para gestionar juegos de dominó.
                "email": "gefiw43481@storesr.com",
                "telefono": "04122977680",
                "perfil": "atleta",
-               "status": "activo"
+               "estatus": "activo"
             },
             "num_status": 0,
             "msg_status": "User updated successfully"

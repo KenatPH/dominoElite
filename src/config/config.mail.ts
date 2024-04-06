@@ -27,11 +27,11 @@ export const sendMail = async (email: string, subject: string, html: string) => 
    }
 }
 
-export const getTemplateHtml = (nombre: string, token: string) => {
+export const getTemplateHtml = (nombre: string, token: string, afiliado:number) => {
    return `
       <div id="email__content">
          <img src="" alt="">
-         <h2>Estimado usuario ${nombre}</h2>
+         <h2>Estimado usuario ${nombre}, usted es el afiliado nro: ${afiliado}</h2>
          <p>Para confirmar tu cuenta ingresa al siguiente enlace</p>
          <a href="${path_confirm}?token=${token}">Confirmar cuenta</a>
       </div>

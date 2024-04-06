@@ -10,12 +10,14 @@
 
 import { Schema, model, Document } from "mongoose";
 
-export interface IUser extends Document {
+export interface IUser extends Document { 
+   afiliado: number,  
+   fbkgoog_id: string,
    nombre: string,
    email: string,
    telefono: string, 
    clave: string, 
-   status: string, 
+   estatus: string, 
    origen: string, 
    tokenFacebook: string,
    tokenGoogle: string, 
@@ -25,7 +27,15 @@ export interface IUser extends Document {
 
 const  bcrypt = require("bcryptjs");
 
-const userSchema = new Schema({
+const userSchema = new Schema({ 
+   afiliado: {
+      type: Number,
+      default: 0
+   }, 
+   fbkgoog_id: {
+      type: String,
+      default: "0"      
+   },
    nombre: {
       type: String,
       required: [true, 'El nombre es requerido']
@@ -45,7 +55,7 @@ const userSchema = new Schema({
       type: String,
       required: [true, 'La contraseña es necesaria']
    },
-   status: {
+   estatus: {
       type: String,
       default: 'activo'
    },
@@ -59,7 +69,7 @@ const userSchema = new Schema({
    tokenGoogle:{
       type: String
    }, 
-   perfil: { //status validos: admin,club, atleta
+   perfil: { //status validos: admin,club, atleta=default
       type: String,
       default: 'atleta'   
    }
