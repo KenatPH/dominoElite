@@ -17,13 +17,13 @@ import { connectDB } from './database'
 import passport, { Passport } from 'passport'
 import passportMiddleware from './middlewares/protectedroutes.middleware'
 import session from 'express-session'
+import swaggerUi from "swagger-ui-express";
+import swggerSpec from './swagger'
 
 //imported routes
-import authRoutes from './routes/auth.routes'
-import protectedRoutes from './routes/protected.routes'
-import userRoutes from './routes/users.routes'
-import paisRoutes from './routes/pais.routes'
-import edoRoutes from './routes/estados.routes'
+// import { router } from './routes';
+import router from './routes'
+
 //import fbkRoutes from './routes/fbk.routes'
 
 //conexión a la bd
@@ -33,7 +33,7 @@ connectDB();
 const app = express()
 
 // settings
-app.set('port', process.env.PORT || 3000)
+app.set('port', process.env.PORT || 4000)
 
 
 //middlewares
@@ -47,19 +47,20 @@ app.use(require('body-parser').urlencoded({ extended: true }));
 app.use(session({ secret: config.FBK.secretSession, resave: true, saveUninitialized: true }));
 app.use(passport.initialize())
 app.use(passport.session());
+
+
 passport.use(passportMiddleware)
+
+
 
 //routes
 app.get('/', (req, res) => {
-   res.send(`The API Dominó, is running in http://localhost:${app.get('port')}`)
+  res.send(`⚡️[server]: The API Dominó, is running in http://localhost:${app.get('port')}`)
 })
 
 //rutas de autenticación
-app.use('/auth',authRoutes);
+app.use(router)
 
-app.use('/user',passport.authenticate('jwt', {session: false}),userRoutes);
-app.use('/pais',passport.authenticate('jwt', {session: false}),paisRoutes);
-app.use('/estado',passport.authenticate('jwt', {session: false}),edoRoutes);
-app.use(passport.authenticate('jwt', {session: false}),protectedRoutes);
-//app.use('/login/facebook',fbkRoutes);
+//swagger
+app.use("/docs", swaggerUi.serve,swaggerUi.setup(swggerSpec))
 export default app

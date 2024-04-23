@@ -8,22 +8,27 @@
   Descripción     : Api para enviar y manejar la información de Dominó
 */
 
-import mongoose  from "mongoose";
-import config from "./config/config";
 
+import { Sequelize } from 'sequelize-typescript';
+import config from "./config/config";
+import User from "./models/users.model";
+import Torneo from "./models/torneo.model";
+import AtletasTorneos from "./models/atletasTorneos.model";
+import PremiosTorneos from "./models/premioTorneo.model";
 
 export const connectDB = async () => {
    try {
-      await mongoose.connect(config.DB.URI)
+
+      const sequelize = new Sequelize({
+         database: config.DB.DBNAME,
+         dialect: 'mysql',
+         username: config.DB.USER,
+         password: config.DB.PASW,
+         port: Number(config.DB.PORT),
+         // models: [__dirname + '/models'], // or [Player, Team],
+      });
+      sequelize.addModels([User, Torneo, AtletasTorneos, PremiosTorneos]);
       
-      const connection = mongoose.connection;
-      connection.once('open', () => {
-         console.log('Mongodb connection stablished');
-      })
-      connection.on('error', err => {
-         console.log('Error in connection db ',err);
-         process.exit(0);
-      })  
    } catch (error) {
       console.log('Error in connection db ',error);
       process.exit(0);    

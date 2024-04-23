@@ -21,7 +21,7 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
       const { nombre, telefono, estatus, perfil } = req.body;
 
       // Find the user by userId
-      const user = await User.findById(id);
+      const user = await User.findOne({ where: { id: id } });
 
       if (!user) {
          return res.status(404).json({
@@ -69,7 +69,7 @@ export const deleteUser = async (req: Request, res: Response): Promise<Response>
 
       // Find the user by userId and Delete the user
       
-      const user = await User.findByIdAndDelete(id);
+      const user = await User.destroy({ where: { id: id } });
 
       if (!user) {
          return res.status(404).json({

@@ -11,9 +11,12 @@
 export default {
    JWT_SECRET  : process.env.JWT_SECRET || 'BioonixDominosomeSecretKey17$*',
    DB: { 
-      URI   : process.env.MONGODB_URI || "mongodb://localhost/dominoelite",
-      USER  : process.env.MONGODB_USER,
-      PASW  : process.env.MONGODB_PASSW
+      DBNAME: 'dominoelite',
+      HOST: process.env.MYSQL_HOST || 'localhost',
+      PORT: process.env.MYSQL_PORT || 3306,
+      URI: process.env.MONGODB_URI || "jdbc:mysql://localhost:3306/",
+      USER  : process.env.MONGODB_USER || 'root',
+      PASW  : process.env.MONGODB_PASSW || 'root'
    },
    MAIL: {
       correo: "jlramirez17@gmail.com",

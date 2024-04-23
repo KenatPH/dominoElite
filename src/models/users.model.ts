@@ -1,93 +1,90 @@
-/*
-  Aplicación      : Api de Dominó
-  Módulo          : Archivo para definir el schema de usuario
-  Fecha creación  : 25 de Mar del 2024
-  Modificado el   :
-  Programador     : JLRAMIREZ
-  Colaboración    :
-  Descripción     : Api para enviar y manejar la información de Dominó
-*/
+import { Table, Column, Model, HasMany, PrimaryKey } from 'sequelize-typescript';
+import { DataType } from 'sequelize-typescript';
 
-import { Schema, model, Document } from "mongoose";
+@Table({
+   timestamps: true,
+   tableName: "users",
+   modelName: "User"
+})
+class User extends Model {
+   @Column({
+      primaryKey: true,
+      type: DataType.UUID,
+      defaultValue: DataType.UUIDV4
+   })
+   declare id:string;
 
-export interface IUser extends Document { 
-   afiliado: number,  
-   fbkgoog_id: string,
-   nombre: string,
-   email: string,
-   telefono: string, 
-   clave: string, 
-   estatus: string, 
-   origen: string, 
-   tokenFacebook: string,
-   tokenGoogle: string, 
-   perfil: string,
-   comparePassword: (clave: string) => Promise<boolean>;
-}
+   @Column({
+      type: DataType.NUMBER,
+      defaultValue: 0
+   })
+   declare afiliado:number
 
-const  bcrypt = require("bcryptjs");
+   @Column({
+      type: DataType.STRING,
+      defaultValue: 0
+   })
+   declare fbkgoog_id:String
 
-const userSchema = new Schema({ 
-   afiliado: {
-      type: Number,
-      default: 0
-   }, 
-   fbkgoog_id: {
-      type: String,
-      default: "0"      
-   },
-   nombre: {
-      type: String,
-      required: [true, 'El nombre es requerido']
-   },
-   email: {
-      type: String,
-      unique: true,
-      required: [true, 'El correo es requerido'],
-      lowercase: true,
-      trim: true
-   },
-   clave: {
-      type: String,
-      required: [true, 'La contraseña es necesaria']
-   },
-   telefono: {
-      type: String,
-      required: [true, 'La contraseña es necesaria']
-   },
-   estatus: {
-      type: String,
-      default: 'activo'
-   },
-   origen: {
-      type: String, //(google, facebook)
-      default: 'local'
-   },
-   tokenFacebook:{
-      type: String
-   },
-   tokenGoogle:{
-      type: String
-   }, 
-   perfil: { //status validos: admin,club, atleta=default
-      type: String,
-      default: 'atleta'   
+   @Column({
+      type: DataType.STRING,
+      allowNull:false
+   })
+   declare nombre:String 
+
+   @Column({
+      type: DataType.STRING,
+      allowNull: false
+   })
+   declare email: String
+
+   @Column({
+      type: DataType.STRING,
+      allowNull: false
+   })
+   declare clave:String 
+
+   @Column({
+      type: DataType.STRING,
+      allowNull: false
+   })
+   declare telefono:String
+
+   @Column({
+      type: DataType.STRING,
+      defaultValue: 'activo'
+   })
+   declare estatus:String 
+
+   @Column({
+      type: DataType.STRING,
+      defaultValue: 'local'
+   })
+   declare origen:String
+
+   @Column({
+      type: DataType.STRING,
+   })
+   declare tokenFacebook:String
+
+   @Column({
+      type: DataType.STRING
+   })
+   declare tokenGoogle:String
+
+   @Column({
+      type: DataType.STRING,
+      defaultValue: 'atleta'
+   })
+   declare perfil:String  //status validos: admin,club, atleta=default
+
+
+   comparePassword(clave:String){
+      return new Promise<any>((resolve, reject) => {
+            resolve(clave == this.clave)
+      })
    }
-});
 
-userSchema.pre<IUser>('save', async function(next) {
-   const user = this;
-   //si no modifica password no vuelve a hacer el hash del passw
-   if (!user.isModified('clave')) return next();
-
-   const salt = await bcrypt.genSalt(10);
-   const hash = await bcrypt.hash(user.clave, salt);
-   user.clave = hash;
-   
-});
-
-userSchema.methods.comparePassword = async function(clave: string): Promise<boolean>{
-   return await bcrypt.compare(clave, this.clave);
 }
 
-export default model<IUser>('User', userSchema);
+export default User

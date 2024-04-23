@@ -18,9 +18,10 @@ import {sendMail, getTemplateHtml} from "../../config/config.mail";
 export const register = async (req: Request, res: Response): Promise<Response> => {
    //declaramos los parametros recibidos en el req.body
    const { nombre, email, telefono, clave, estatus, origen, fbkgoog_id, tokenFacebook, tokenGoogle, perfil} = req?.body
-
+   
    //validar el origen para saber si viene de local
    if(!email || !clave || !telefono || !nombre ){
+
       return res.status(409).json({
          data_send: "",         
          num_status:1,
@@ -29,7 +30,7 @@ export const register = async (req: Request, res: Response): Promise<Response> =
    }
 
    //verificar si ya existe un usuario con ése email
-   const user = await User.findOne({email: email})
+   const user = await User.findOne({ where: { email: email } })
    if(user) {
       return res.status(409).json({
          data_send: "",         
@@ -38,7 +39,7 @@ export const register = async (req: Request, res: Response): Promise<Response> =
       })
    }
    
-   const lastUser = await User.findOne().sort({afiliado: -1});
+   const lastUser = await User.findOne({ order: [['afiliado', 'desc']]});
    const lastUserId = lastUser ? lastUser.afiliado : 0;
    let afiliado: number = lastUserId + 1;
    const newUser = new User({
@@ -58,7 +59,7 @@ export const register = async (req: Request, res: Response): Promise<Response> =
    try {
       
       await newUser.save();
-      const userId = newUser._id;   
+      const userId = newUser.id;   
       
       //obtenemos un token
       const token = getToken({ email, userId, afiliado });
@@ -96,7 +97,7 @@ export const login = async (req: Request, res: Response) => {
    }
 
    //validamos que el usuario exista
-   const user = await User.findOne({email: email})
+   const user = await User.findOne({ where: { email: email } })
    if(!user) {
       return res.status(409).json({
          data_send: "",         
@@ -116,7 +117,7 @@ export const login = async (req: Request, res: Response) => {
       }
     
       //generar token
-      const token = getToken({ email, id: user._id, nombre: user.nombre, perfil: user.perfil});
+      const token = getToken({ email, id: user.id, nombre: user.nombre, perfil: user.perfil});
     
       return res.status(200).json({
         data_send: {token, nombre: user.nombre, telefono: user.telefono, perfil: user.perfil},
@@ -132,14 +133,14 @@ export const modifyPassword = async (req: Request, res: Response): Promise<Respo
 
    try {
       // Find the user by email
-      const user = await User.findOne({ email });
+      const user = await User.findOne({ where: { email: email } });
 
       // Check if the user exists
       if (!user) {
-         return res.status(404).json({
+         return res.status(410).json({
             data_send: "",
             num_status: 6,
-            msg_status: 'User not found'
+            msg_status: 'usuario no encontrado'
          });
       }
 
@@ -149,7 +150,7 @@ export const modifyPassword = async (req: Request, res: Response): Promise<Respo
          return res.status(409).json({
             data_send: "",
             num_status: 7,
-            msg_status: 'Old password is incorrect'
+            msg_status: 'clave actual es incorrecta'
          });
       }
 
@@ -160,7 +161,7 @@ export const modifyPassword = async (req: Request, res: Response): Promise<Respo
       return res.status(200).json({
          data_send: "",
          num_status: 0,
-         msg_status: 'Password modified successfully'
+         msg_status: 'clave modificada con exito'
       });
    } catch (error) {
       return res.status(500).json({
