@@ -5,7 +5,7 @@ import Torneo from './torneo.model';
 
 @Table({
     timestamps: false,
-    tableName: "atletasTorneos",
+    tableName: "atletas_torneos",
     modelName: "atletaTorneo"
 })
 class AtletasTorneos extends Model {

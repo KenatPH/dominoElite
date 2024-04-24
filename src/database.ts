@@ -15,6 +15,8 @@ import User from "./models/users.model";
 import Torneo from "./models/torneo.model";
 import AtletasTorneos from "./models/atletasTorneos.model";
 import PremiosTorneos from "./models/premioTorneo.model";
+import SolicitudMembresia from './models/solisitudclub.model';
+import Club from './models/club.model';
 
 export const connectDB = async () => {
    try {
@@ -27,7 +29,7 @@ export const connectDB = async () => {
          port: Number(config.DB.PORT),
          // models: [__dirname + '/models'], // or [Player, Team],
       });
-      sequelize.addModels([User, Torneo, AtletasTorneos, PremiosTorneos]);
+      sequelize.addModels([User, Torneo, AtletasTorneos, PremiosTorneos, Club, SolicitudMembresia]);
       
    } catch (error) {
       console.log('Error in connection db ',error);

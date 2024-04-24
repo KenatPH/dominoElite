@@ -1,5 +1,6 @@
-import { Table, Column, Model, HasMany, PrimaryKey } from 'sequelize-typescript';
+import { Table, Column, Model, HasMany, BelongsTo, ForeignKey } from 'sequelize-typescript';
 import { DataType } from 'sequelize-typescript';
+import Club from './club.model';
 
 @Table({
    timestamps: true,
@@ -77,6 +78,21 @@ class User extends Model {
       defaultValue: 'atleta'
    })
    declare perfil:String  //status validos: admin,club, atleta=default
+
+   @Column({
+      type: DataType.BOOLEAN,
+      defaultValue: 0
+   })
+   declare esArbitro: boolean
+
+   @ForeignKey(() => Club)
+   @Column({
+      type: DataType.STRING
+   })
+   declare clubId: String;
+
+   @BelongsTo(() => Club)
+   declare club: Club;
 
 
    comparePassword(clave:String){

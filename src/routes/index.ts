@@ -2,6 +2,7 @@ import express from 'express'
 import authRoutes  from './auth.routes';
 import userRoutes  from './users.routes';
 import torneoRoutes from './torneo.routes'
+import clubsRoutes from './club.routes'
 import passport from 'passport';
 
 const router = express.Router()
@@ -10,9 +11,11 @@ router.use('/auth', authRoutes);
 
 router.use('/api/user', passport.authenticate('jwt', { session: false }), userRoutes);
 
-// router.use('/api/torneo', passport.authenticate('jwt', { session: false }), torneoRoutes);
+router.use('/api/torneo', passport.authenticate('jwt', { session: false }), torneoRoutes);
 
-router.use('/api/torneo',  torneoRoutes);
+// router.use('/api/club', passport.authenticate('jwt', { session: false }), clubsRoutes);
+
+router.use('/api/club',  clubsRoutes);
 
 
 
@@ -113,9 +116,6 @@ export default router;
  *                      - premio uno
  *                      - premio dos
  *                      - premio tres
- *                      
- * 
- * 
  *          required:
  *             - sistema
  *             - nombre
