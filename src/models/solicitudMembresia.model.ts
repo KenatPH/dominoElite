@@ -6,7 +6,7 @@ import User from './users.model';
 @Table({
     timestamps: false,
     tableName: "solicitudMembresia",
-    modelName: "solicitud"
+    modelName: "solicitudMembresia"
 })
 class SolicitudMembresia extends Model {
 
@@ -27,6 +27,9 @@ class SolicitudMembresia extends Model {
     @ForeignKey(() => User)
     @Column
     declare userId: String;
+
+    @BelongsTo(() => User)
+    declare user: User;
 
     @Column({
         type: DataType.STRING,

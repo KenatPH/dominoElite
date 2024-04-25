@@ -3,6 +3,7 @@ import authRoutes  from './auth.routes';
 import userRoutes  from './users.routes';
 import torneoRoutes from './torneo.routes'
 import clubsRoutes from './club.routes'
+import partidasRouter from './partida.routes'
 import passport from 'passport';
 
 const router = express.Router()
@@ -14,8 +15,9 @@ router.use('/api/user', passport.authenticate('jwt', { session: false }), userRo
 router.use('/api/torneo', passport.authenticate('jwt', { session: false }), torneoRoutes);
 
 // router.use('/api/club', passport.authenticate('jwt', { session: false }), clubsRoutes);
+router.use('/api/club', clubsRoutes);
 
-router.use('/api/club',  clubsRoutes);
+router.use('/api/partida', partidasRouter);
 
 
 

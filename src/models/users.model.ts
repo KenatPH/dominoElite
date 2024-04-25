@@ -1,6 +1,7 @@
 import { Table, Column, Model, HasMany, BelongsTo, ForeignKey } from 'sequelize-typescript';
 import { DataType } from 'sequelize-typescript';
 import Club from './club.model';
+import SolicitudMembresia from './solicitudMembresia.model';
 
 @Table({
    timestamps: true,
@@ -93,6 +94,9 @@ class User extends Model {
 
    @BelongsTo(() => Club)
    declare club: Club;
+
+   // @BelongsTo(() => SolicitudMembresia)
+   // declare solicitud: SolicitudMembresia;
 
 
    comparePassword(clave:String){

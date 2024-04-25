@@ -28,6 +28,13 @@ class Torneo extends Model {
         allowNull: false
     })
     declare sistema: String
+    //TODO 
+    @Column({
+        type: DataType.STRING,
+        allowNull: false,
+        defaultValue: 'clubes' // federado
+    })
+    declare tipo: String
 
     @Column({
         type: DataType.INTEGER

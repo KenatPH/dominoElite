@@ -17,7 +17,7 @@ import {sendMail, getTemplateHtml} from "../../config/config.mail";
 
 export const register = async (req: Request, res: Response): Promise<Response> => {
    //declaramos los parametros recibidos en el req.body
-   const { nombre, email, telefono, clave, estatus, origen, fbkgoog_id, tokenFacebook, tokenGoogle, perfil} = req?.body
+   const { nombre, email, telefono, clave, estatus, origen, fbkgoog_id, tokenFacebook, tokenGoogle, perfil, esArbitro } = req?.body
    
    //validar el origen para saber si viene de local
    if(!email || !clave || !telefono || !nombre ){
@@ -53,7 +53,8 @@ export const register = async (req: Request, res: Response): Promise<Response> =
       origen, 
       tokenFacebook,
       tokenGoogle, 
-      perfil
+      perfil,
+      esArbitro
    });
 
    try {

@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import User from "../models/users.model";
 import Club from "../models/club.model";
-import SolicitudMembresia from "../models/solisitudclub.model";
+import SolicitudMembresia from "../models/solicitudMembresia.model";
 
 export const getListClub = async (req: Request, res: Response): Promise<Response> => {
     const torneos = await Club.findAll()
@@ -18,20 +18,37 @@ export const getListClub = async (req: Request, res: Response): Promise<Response
 
 export const getClub = async (req: Request, res: Response): Promise<Response> => {
     const { id } = req.params;
-    const club = await Club.findOne({ where: { id: id }, include: [User, { model: SolicitudMembresia,  where: { estatus: 'En espera' }, required: false  }] })
-    if (!club) {
-        return res.status(404).json({
-            data_send: "",
-            num_status: 6,
-            msg_status: 'club no Encontrado'
-        });
-    }
+    const club = await Club.findOne(
+        { 
+            where: { id: id }, 
+            include: [
+                { 
+                    model: User,
+                    as: 'atletas',
+                    attributes: ['id', 'nombre'] 
+                } 
+            ] 
+        })
+        if (!club) {
+            return res.status(404).json({
+                data_send: "",
+                num_status: 6,
+                msg_status: 'club no Encontrado'
+            });
+        }
+    const solicitudes = await SolicitudMembresia.findAll({
+        where: { clubId: id, estatus: 'En espera' }, attributes:['id','estatus'], include: [
+            {
+                model: User,
+                attributes: [ "id",'nombre']
+            }
+        ]
+    })
 
     try {
-
         return res.status(201).json(
             {
-                data_send: club,
+                data_send: { club, solicitudes },
                 num_status: 0,
                 msg_status: 'club Actualizado correctamente.'
             }

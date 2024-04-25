@@ -1,7 +1,7 @@
 import { Table, Column, Model, HasMany, PrimaryKey, ForeignKey, BelongsToMany } from 'sequelize-typescript';
 import { DataType } from 'sequelize-typescript';
 import User from "./users.model";
-import SolicitudMembresia from './solisitudclub.model';
+import SolicitudMembresia from './solicitudMembresia.model';
 
 @Table({
     timestamps: true,
@@ -34,7 +34,8 @@ class Club extends Model {
     declare atletas: User[];
 
     @HasMany(() => SolicitudMembresia)
-    declare solicitudes: SolicitudMembresia[];
+    // @BelongsToMany(() => User, () => SolicitudMembresia)
+    declare solicitudes: User[];
 
 
 }

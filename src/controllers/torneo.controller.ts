@@ -34,7 +34,7 @@ export const getTorneo = async (req: Request, res: Response): Promise<Response> 
             {
                 data_send: torneo,
                 num_status: 0,
-                msg_status: 'Torneo Actualizado correctamente.'
+                msg_status: 'Torneo obtenido correctamente.'
             }
         );
     } catch (error) {
