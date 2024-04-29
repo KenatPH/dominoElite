@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { create, update, addAtletas, getTorneo, getListTorneo } from "../controllers/torneo.controller";
+import { create, update, addAtletas, getTorneo, getListTorneo, generarPartidasTorneo } from "../controllers/torneo.controller";
 
 const router = Router();
 
@@ -38,5 +38,6 @@ router.get('/get/:id', getTorneo);
 router.post('/create', create);
 router.post('/update/:id', update);
 router.post('/addAtletas/:id', addAtletas);
+router.post('/generarPartidasTorneo', generarPartidasTorneo);
 
 export default router;

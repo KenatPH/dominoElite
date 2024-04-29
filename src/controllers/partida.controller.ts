@@ -24,8 +24,9 @@ export const getListPartida = async (req: Request, res: Response): Promise<Respo
 export const getPartida = async (req: Request, res: Response): Promise<Response> => {
     const { id } = req.params;
 
-    const partida = await Partida.findOne({ where: { id: id },
-         include: [
+    const partida = await Partida.findOne({ 
+        where: { id: id },
+        include: [
             { model: User, as: 'ganador1Info' },
             { model: User, as: 'ganador2Info' },
             { model: User, as: 'jugadores', attributes:['id','nombre'] }
@@ -55,7 +56,6 @@ export const getPartida = async (req: Request, res: Response): Promise<Response>
     }
 }
 
-
 export const create = async (req: Request, res: Response): Promise<Response> => {
 
     const { sistema, cantidadJugadores, tipo, torneo, jugadores  } = req.body;
@@ -69,9 +69,9 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
         })
     }
 
-    if ( tipo=='local' && torneo && torneo.id) {
-        const user = await Torneo.findOne({ where: { id: torneo.id } })
-        if (!user) {
+    if ( tipo != 'local' && torneo && torneo.id) {
+        const torneoDB = await Torneo.findOne({ where: { id: torneo.id } })
+        if (!torneoDB) {
             return res.status(404).json({
                 data_send: "",
                 num_status: 6,
@@ -160,32 +160,98 @@ export const asignaJugadorAPartida = async (req: Request, res: Response): Promis
     }
 
     // falta validar cantidad de jugadores
+    if (partida.jugadores.length === partida.cantidadJugadores){
+        return res.status(409).json({
+            data_send: "",
+            num_status: 6,
+            msg_status: 'no puede agregar mas jugadores a esta partida'
+        });
+    }
+
+    let puestosFaltantes = partida.cantidadJugadores - partida.jugadores.length
 
     jugadores.forEach(async (id:String) => {
-        if(!partida.jugadores.find(jugador=> jugador.id == id)){
-            console.log("*******************jugador no existe************************ id" ,id);
-                    const JP = new JugadorPartida({
-                        partidaId: partidaId,
-                        userId: id
-                    })
+        if(!puestosFaltantes){
+            return
+        }
+        if(!partida.jugadores.find(jugador => jugador.id === id)){
 
-                    await JP.save()
-        }else{
-            console.log("jugador existe");
+            const JP = new JugadorPartida({
+                partidaId: partidaId,
+                userId: id
+            })
+            await JP.save()
+            puestosFaltantes--
         }
 
     });
 
     return res.status(201).json(
         {
-            data_send: partida,
+            data_send: "",
             num_status: 0,
-            msg_status: 'Partida creada correctamente.'
+            msg_status: 'Exito.'
         });
 
 }
 
+export const resultadoPartida = async (req: Request, res: Response): Promise<Response> => {
+
+    const { partidaId, ganador1, ganador2, puntajes } = req.body;
+
+    if (!partidaId || !ganador1) {
+
+        return res.status(409).json({
+            data_send: "",
+            num_status: 1,
+            msg_status: 'Los campos "id partida, ganador1" son obligatorios'
+        })
+    }
+
+    const partida = await Partida.findOne({
+        where: { id: partidaId }
+    })
+
+    if (!partida) {
+        return res.status(404).json({
+            data_send: "",
+            num_status: 6,
+            msg_status: 'partida no Encontrada'
+        });
+    }
+
+    partida.ganador1 = ganador1
+    partida.ganador2 = (ganador2) ? ganador2 : partida.ganador2
+    partida.estatus = "Finalizado"
+    
+    try {
+
+        await partida.save()
+
+        return res.status(201).json(
+            {
+                data_send: "",
+                num_status: 0,
+                msg_status: 'Exito.'
+            });
+    } catch (error) {
+        return res.status(500).json({
+            message: error
+        });
+    }
 
 
+}
 
+export const rankingJugador = async (req: Request, res: Response): Promise<Response> => {
+
+    const user = User.findAll({ include: { model: Partida, as: 'partidas' }}) 
+
+    return res.status(201).json(
+        {
+            data_send: "",
+            num_status: 0,
+            msg_status: 'Exito.'
+        });
+}
 

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getListPartida, create, getPartida, asignaJugadorAPartida } from "../controllers/partida.controller";
+import { getListPartida, create, getPartida, asignaJugadorAPartida, resultadoPartida } from "../controllers/partida.controller";
 
 const router = Router();
 
@@ -37,8 +37,7 @@ router.get('/get/:id', getPartida);
  *        description: Error inesperado
  */
 router.post('/create', create);
+router.post('/resultadoPartida', resultadoPartida);
 router.post('/asignaJugadores', asignaJugadorAPartida);
-// router.post('/update/:id', update);
-// router.post('/addAtletas/:id', addAtletas);
 
 export default router;

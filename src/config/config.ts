@@ -15,8 +15,8 @@ export default {
       HOST: process.env.MYSQL_HOST || 'localhost',
       PORT: process.env.MYSQL_PORT || 3306,
       URI: process.env.MONGODB_URI || "jdbc:mysql://localhost:3306/",
-      USER  : process.env.MONGODB_USER || 'root',
-      PASW  : process.env.MONGODB_PASSW || 'root'
+      USER: process.env.MYSQL_USER || 'root',
+      PASW: process.env.MYSQL_PASS || 'root'
    },
    MAIL: {
       correo: "jlramirez17@gmail.com",

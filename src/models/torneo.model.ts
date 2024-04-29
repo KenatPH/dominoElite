@@ -25,7 +25,8 @@ class Torneo extends Model {
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 'Nacional'
     })
     declare sistema: String
     //TODO 

@@ -12,11 +12,12 @@ router.use('/auth', authRoutes);
 
 router.use('/api/user', passport.authenticate('jwt', { session: false }), userRoutes);
 
-router.use('/api/torneo', passport.authenticate('jwt', { session: false }), torneoRoutes);
+// router.use('/api/torneo', passport.authenticate('jwt', { session: false }), torneoRoutes);
 
 // router.use('/api/club', passport.authenticate('jwt', { session: false }), clubsRoutes);
-router.use('/api/club', clubsRoutes);
 
+router.use('/api/torneo',  torneoRoutes);
+router.use('/api/club', clubsRoutes);
 router.use('/api/partida', partidasRouter);
 
 

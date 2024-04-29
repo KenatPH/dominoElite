@@ -21,12 +21,14 @@ class Partida extends Model {
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 'Nacional'
     })
     declare sistema: String
 
     @Column({
-        type: DataType.INTEGER
+        type: DataType.INTEGER,
+        defaultValue: 4
     })
     declare cantidadJugadores: number
 
@@ -35,11 +37,17 @@ class Partida extends Model {
         defaultValue: 100
     })
     declare puntos: number
+    
+    @Column({
+        type: DataType.STRING,
+        defaultValue: 'activo'//finalizado
+    })
+    declare estatus: String 
 
     @Column({
         type: DataType.STRING,
         allowNull: false,
-        defaultValue: 'local'// torneo
+        defaultValue: 'local'// torneo // club
     })
     declare tipo: String
 
@@ -48,6 +56,11 @@ class Partida extends Model {
         type: DataType.STRING
     })
     declare torneoId: String;
+
+    @Column({
+        type: DataType.STRING
+    })
+    declare clubId: String;
     
     @BelongsToMany(() => User, () => JugadorPartida)
     declare jugadores: User[];

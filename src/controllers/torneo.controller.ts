@@ -3,6 +3,8 @@ import Torneo from "../models/torneo.model";
 import User from "../models/users.model";
 import AtletasTorneos from "../models/atletasTorneos.model";
 import PremiosTorneos from "../models/premioTorneo.model";
+import Partida from "../models/partida.model";
+import JugadorPartida from "../models/jugadorPartida.model";
 
 export const getListTorneo = async (req: Request, res: Response): Promise<Response> => {
     const torneos = await Torneo.findAll()
@@ -19,7 +21,13 @@ export const getListTorneo = async (req: Request, res: Response): Promise<Respon
 
 export const getTorneo = async (req: Request, res: Response): Promise<Response> => {
     const { id } = req.params;
-    const torneo = await Torneo.findOne({ where: { id: id }, include: [User, PremiosTorneos] })
+    const torneo = await Torneo.findOne({ 
+        where: { id: id },
+        include: [
+            { model: User, as: 'atletas', attributes: ['id', 'nombre'] },
+             PremiosTorneos
+        ] 
+    })
     if (!torneo) {
         return res.status(404).json({
             data_send: "",
@@ -28,11 +36,18 @@ export const getTorneo = async (req: Request, res: Response): Promise<Response> 
         });
     }
 
+    const partidas = await Partida.findAll({
+        where: { torneoId: id },
+        include: [
+            { model: User, as: 'jugadores', attributes: ['id', 'nombre'] }
+        ]
+    })
+
     try {
 
         return res.status(201).json(
             {
-                data_send: torneo,
+                data_send: { torneo, partidas },
                 num_status: 0,
                 msg_status: 'Torneo obtenido correctamente.'
             }
@@ -154,7 +169,16 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
 export const addAtletas = async (req: Request, res: Response): Promise<Response> => {
     
     const { id } = req.params;
-    const {  atletas } = req.body;
+    const { atletas } = req.body;
+
+    if (!id || !atletas ) {
+
+        return res.status(409).json({
+            data_send: "",
+            num_status: 1,
+            msg_status: 'Los campos id, atletas son obligatorios'
+        })
+    }
 
     const torneo = await Torneo.findOne({ where: { id: id } })
 
@@ -187,5 +211,77 @@ export const addAtletas = async (req: Request, res: Response): Promise<Response>
 
 }
 
+
+export const generarPartidasTorneo = async (req: Request, res: Response): Promise<Response> => {
+
+    const {  torneoId, mesas } = req.body;
+
+    if (!torneoId || !mesas) {
+
+        return res.status(409).json({
+            data_send: "",
+            num_status: 1,
+            msg_status: 'Los campos torneoId, mesas son obligatorios'
+        })
+    }
+
+    const torneo = await Torneo.findOne({ where: { id: torneoId } })
+
+    if (!torneo) {
+        return res.status(404).json({
+            data_send: "",
+            num_status: 6,
+            msg_status: 'torneo no encontrado'
+        });
+    }
+
+
+    if(!mesas && !mesas.length){
+        return res.status(404).json({
+            data_send: "",
+            num_status: 6,
+            msg_status: 'parametro mesas requerido'
+        });
+    }
+    
+
+    mesas.forEach(async(mesa:any) => {
+        
+        const partida = new Partida({
+            sistema: torneo.sistema,
+            tipo: "torneo",
+            torneoId: torneoId
+        });
+
+        await partida.save()
+
+        mesa.jugadores.forEach((j: any) => {
+
+            const JP = new JugadorPartida({
+                partidaId: partida.id,
+                userId: j
+            })
+
+            JP.save()
+        });
+
+    });
+
+
+    const partidas = await Partida.findAll({
+        where: { torneoId: torneoId },
+        include: [
+            { model: User, as: 'jugadores', attributes: ['id', 'nombre'] }
+        ] 
+    })
+
+    return res.status(201).json(
+        {
+            data_send: partidas,
+            num_status: 0,
+            msg_status: 'Torneo Actualizado correctamente.'
+        }
+    );
+}
 
 
