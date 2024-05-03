@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+
 import Partida from "../models/partida.model";
 import User from "../models/users.model";
 import Torneo from "../models/torneo.model";
@@ -6,6 +7,7 @@ import JugadorPartida from "../models/jugadorPartida.model";
 import { Sequelize } from 'sequelize-typescript';
 import { Op } from "sequelize";
 import { io } from "socket.io-client";
+import config from "../config/config";
 
 
 export const getListPartida = async (req: Request, res: Response): Promise<Response> => {
@@ -328,7 +330,7 @@ export const iniciarPartida = async (req: Request, res: Response): Promise<Respo
 
     let data = { gameId: id, action: "playGame", time: partida?.duracionSegundos }; // ID de la partida a la que te quieres unir
 
-    var socket = io('http://localhost:3000');
+    var socket = io(config.WS.HOST + ':'+config.WS.PORT);
 
     socket.emit('joinGame', data);
 

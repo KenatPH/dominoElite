@@ -1,14 +1,3 @@
-/*
-  Empresa         : Bioonix
-  Aplicación      : Api de Dominó 
-  Módulo          : Archivo que define la configuración para la conexión a la BD
-  Fecha creación  : 23 de Mar del 2024
-  Modificado el   : 25-03-24
-  Programador     : JLRAMIREZ
-  Colaboración    :
-  Descripción     : Api para enviar y manejar la información de Dominó
-*/
-
 import express, { urlencoded } from 'express'
 import morgan from 'morgan'
 import cors from 'cors'

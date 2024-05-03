@@ -123,4 +123,53 @@ export default router;
  *             - sistema
  *             - nombre
  *             - rondas
+ *      updateTorneoSchema:
+ *          type: object
+ *          properties:
+ *              nombre:
+ *                  type: string
+ *                  description: nombre del torneo
+ *              ubicacion:
+ *                  type: string
+ *                  description: ubicacion del torneo
+ *              sistema:
+ *                  type: string
+ *              puntos:
+ *                  type: integer
+ *                  description: puntos por partidas del torneo
+ *              rondas:
+ *                  type: integer
+ *                  description: cantidad de rondas del torneo
+ *              publico:
+ *                  type: boolean
+ *              minutos:
+ *                  type: integer
+ *              segundos:
+ *                  type: integer
+ *              arbitro:
+ *                  type: string
+ *                  example:
+ *                      id: 2ba3af9f-245e-47f2-bec6-30e6945804ee
+ *          required:
+ *             - sistema
+ *             - nombre
+ *             - rondas
+ *      addAtletaTorneo:
+ *         type: object
+ *         properties:
+ *           atletas:
+ *              type: array
+ *              example:
+ *               - 2ba3af9f-245e-47f2-bec6-30e6945804ee
+ *      generarPartidasTorneo:
+ *          type: object
+ *          properties:
+ *              mesas:
+ *                type: array
+ *                  example:
+ *                      jugadores:
+ *                       -  2ba3af9f-245e-47f2-bec6-30e6945804ee
+ *                       -  2ba3af9f-245e-47f2-bec6-30e6945804ee
+ *                       -  2ba3af9f-245e-47f2-bec6-30e6945804ee
+ *                       -  2ba3af9f-245e-47f2-bec6-30e6945804ee      
  */         

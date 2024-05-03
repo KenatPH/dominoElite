@@ -1,12 +1,3 @@
-/*
-  Aplicación      : Api de Dominó
-  Módulo          : Archivo que define la configuración para la conexión a la BD y otras configuraciones
-  Fecha creación  : 23 de Mar del 2024
-  Modificado el   :
-  Programador     : JLRAMIREZ
-  Colaboración    :
-  Descripción     : Api para enviar y manejar la información de Dominó
-*/
 
 export default {
    JWT_SECRET  : process.env.JWT_SECRET || 'BioonixDominosomeSecretKey17$*',
@@ -17,6 +8,10 @@ export default {
       URI: process.env.MONGODB_URI || "jdbc:mysql://localhost:3306/",
       USER: process.env.MYSQL_USER || 'root',
       PASW: process.env.MYSQL_PASS || 'root'
+   },
+   WS:{
+      HOST: process.env.SOCKETHOST || 'localhost',
+      PORT: process.env.SOCKETPORT || 3000,
    },
    MAIL: {
       correo: "jlramirez17@gmail.com",

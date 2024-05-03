@@ -74,9 +74,10 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
             })
         }
         
+        let arbitroDB = null
         if(arbitro && arbitro.id){
-            const user = await User.findOne({ where: { id: arbitro.id } })
-            if (!user) {
+            const arbitroDB = await User.findOne({ where: { id: arbitro.id } })
+            if (!arbitroDB) {
                 return res.status(404).json({
                     data_send: "",
                     num_status: 6,
@@ -84,7 +85,9 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
                 });
             }
         }
-    let clubDB = null
+
+        let clubDB = null
+
         if (club && club.id) {
             clubDB = await Club.findOne({ where: { id: club.id } })
             if (!clubDB) {
@@ -108,7 +111,7 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
             rondas,
             sistema,
             publico,
-            arbitro,
+            arbitro: (arbitroDB)? arbitro.id:null ,
             duracionSegundos,
             clubId: (clubDB)? club.id:null
         });
@@ -150,6 +153,18 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
         });
     }
 
+    let arbitroDB = null
+    if (arbitro && arbitro.id) {
+        const arbitroDB = await User.findOne({ where: { id: arbitro.id } })
+        if (!arbitroDB) {
+            return res.status(404).json({
+                data_send: "",
+                num_status: 6,
+                msg_status: 'arbitro not found'
+            });
+        }
+    }
+
     let minutosAsegundos = (minutos) ? minutos * 60 : 0
 
     let duracionSegundos = (segundos ? segundos:0) + minutosAsegundos
@@ -160,7 +175,7 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
     torneo.rondas = (rondas)? rondas: torneo.rondas
     torneo.publico = (publico)? publico: torneo.publico
     torneo.sistema = (sistema)? sistema: torneo.sistema
-    torneo.arbitro = (arbitro)? arbitro: torneo.arbitro
+    torneo.arbitro = (arbitroDB)? arbitro.id : torneo.arbitro
     torneo.duracionSegundos = duracionSegundos
 
     try {
@@ -213,7 +228,7 @@ export const addAtletas = async (req: Request, res: Response): Promise<Response>
             {
                 data_send: torneo,
                 num_status: 0,
-                msg_status: 'Torneo Actualizado correctamente.'
+                msg_status: 'atletas agregados con con exito.'
             }
         );
     } catch (error) {
@@ -225,20 +240,23 @@ export const addAtletas = async (req: Request, res: Response): Promise<Response>
 
 }
 
+//TODO eliminar atletas
+
 export const generarPartidasTorneo = async (req: Request, res: Response): Promise<Response> => {
 
-    const {  torneoId, mesas } = req.body;
+    const { id } = req.params;
+    const {  mesas } = req.body;
 
-    if (!torneoId || !mesas) {
+    if (!id || !mesas) {
 
         return res.status(409).json({
             data_send: "",
             num_status: 1,
-            msg_status: 'Los campos torneoId, mesas son obligatorios'
+            msg_status: 'Los campos id, mesas son obligatorios'
         })
     }
 
-    const torneo = await Torneo.findOne({ where: { id: torneoId } })
+    const torneo = await Torneo.findOne({ where: { id: id } })
 
     if (!torneo) {
         return res.status(404).json({
@@ -263,7 +281,7 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
         const partida = new Partida({
             sistema: torneo.sistema,
             tipo: "torneo",
-            torneoId: torneoId
+            torneoId: id
         });
 
         await partida.save()
@@ -282,7 +300,7 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
 
 
     const partidas = await Partida.findAll({
-        where: { torneoId: torneoId },
+        where: { torneoId: id },
         include: [
             { model: User, as: 'jugadores', attributes: ['id', 'nombre'] }
         ] 
@@ -296,5 +314,7 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
         }
     );
 }
+
+//TODO eliminar partidas
 
 
