@@ -1,13 +1,12 @@
 import { Router } from "express";
-import { getListPartida, create, getPartida, asignaJugadorAPartida, resultadoPartida } from "../controllers/partida.controller";
+import { getListPartida, create, getPartida, asignaJugadorAPartida, resultadoPartida, rankingJugador, iniciarPartida } from "../controllers/partida.controller";
 
 const router = Router();
 
 router.get('/get/', getListPartida);
 router.get('/torneo/:torneo', getListPartida);
-
 router.get('/get/:id', getPartida);
-
+router.get('/iniciarPartida/:id', iniciarPartida);
 /**
  * @swagger
  * /api/torneo/create:
@@ -39,5 +38,6 @@ router.get('/get/:id', getPartida);
 router.post('/create', create);
 router.post('/resultadoPartida', resultadoPartida);
 router.post('/asignaJugadores', asignaJugadorAPartida);
+router.get('/rankingJugador/:id', rankingJugador);
 
 export default router;

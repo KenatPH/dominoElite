@@ -5,6 +5,7 @@ import AtletasTorneos from "../models/atletasTorneos.model";
 import PremiosTorneos from "../models/premioTorneo.model";
 import Partida from "../models/partida.model";
 import JugadorPartida from "../models/jugadorPartida.model";
+import Club from "../models/club.model";
 
 export const getListTorneo = async (req: Request, res: Response): Promise<Response> => {
     const torneos = await Torneo.findAll()
@@ -61,7 +62,7 @@ export const getTorneo = async (req: Request, res: Response): Promise<Response> 
 
 export const create = async (req: Request, res: Response): Promise<Response> => {
 
-        const { nombre, ubicacion, puntos, rondas, publico, 
+        const { nombre, ubicacion, puntos, rondas, publico, club,
             sistema, arbitro, minutos, segundos, premios } = req.body;
         
         if (!nombre || !ubicacion || !puntos || !rondas || !sistema ){
@@ -83,6 +84,18 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
                 });
             }
         }
+    let clubDB = null
+        if (club && club.id) {
+            clubDB = await Club.findOne({ where: { id: club.id } })
+            if (!clubDB) {
+                return res.status(404).json({
+                    data_send: "",
+                    num_status: 6,
+                    msg_status: 'club not found'
+                });
+            }
+        }
+        
 
         let minutosAsegundos = (minutos)? minutos*60 : 0
 
@@ -96,7 +109,8 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
             sistema,
             publico,
             arbitro,
-            duracionSegundos
+            duracionSegundos,
+            clubId: (clubDB)? club.id:null
         });
 
     try {
@@ -210,7 +224,6 @@ export const addAtletas = async (req: Request, res: Response): Promise<Response>
 
 
 }
-
 
 export const generarPartidasTorneo = async (req: Request, res: Response): Promise<Response> => {
 

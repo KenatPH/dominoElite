@@ -33,6 +33,13 @@ class JugadorPartida extends Model {
     })
     declare puesto: String
 
+    @Column({
+        type: DataType.STRING,
+        allowNull: true,
+        defaultValue: 'perdido'
+    })
+    declare resultado: String
+
 }
 
 export default JugadorPartida

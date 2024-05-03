@@ -1,8 +1,12 @@
-import express, { Request, Response } from "express";
+import { Request, Response } from "express";
 import Partida from "../models/partida.model";
 import User from "../models/users.model";
 import Torneo from "../models/torneo.model";
 import JugadorPartida from "../models/jugadorPartida.model";
+import { Sequelize } from 'sequelize-typescript';
+import { Op } from "sequelize";
+import { io } from "socket.io-client";
+
 
 export const getListPartida = async (req: Request, res: Response): Promise<Response> => {
     const { torneo } = req.params;
@@ -58,7 +62,7 @@ export const getPartida = async (req: Request, res: Response): Promise<Response>
 
 export const create = async (req: Request, res: Response): Promise<Response> => {
 
-    const { sistema, cantidadJugadores, tipo, torneo, jugadores  } = req.body;
+    const { sistema, cantidadJugadores, tipo, torneo, jugadores, minutos, segundos  } = req.body;
 
     if (!cantidadJugadores || !jugadores || !sistema ) {
 
@@ -69,8 +73,9 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
         })
     }
 
+    let torneoDB = null
     if ( tipo != 'local' && torneo && torneo.id) {
-        const torneoDB = await Torneo.findOne({ where: { id: torneo.id } })
+         torneoDB = await Torneo.findOne({ where: { id: torneo.id } })
         if (!torneoDB) {
             return res.status(404).json({
                 data_send: "",
@@ -79,8 +84,13 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
             });
         }
     }
+
     try {
         let jugadoresResult: JugadorPartida[] = []
+
+        let minutosAsegundos = (minutos) ? minutos * 60 : 0
+
+        let duracionSegundos = ((segundos) ? segundos : 1200 ) + minutosAsegundos
     
         if (jugadores.length > 0){
 
@@ -93,13 +103,13 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
             }
 
             const partida = new Partida({
-                sistema, cantidadJugadores, tipo, torneo
+                sistema, cantidadJugadores, duracionSegundos,  tipo, torneo: (torneo && torneo.id) ? torneo.id:null
             });
 
             partida.save()
 
             
-            jugadores.forEach((j:any)=> {
+            jugadores.forEach(async (j:any)=> {
 
                 const JP = new JugadorPartida({
                     partidaId: partida.id,
@@ -107,6 +117,7 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
                 })
 
                 JP.save()
+
                 jugadoresResult.push(JP)
             });
 
@@ -219,6 +230,36 @@ export const resultadoPartida = async (req: Request, res: Response): Promise<Res
             msg_status: 'partida no Encontrada'
         });
     }
+    // valida si los ganadores estan jugando en esta partida
+    const ganador1BD = await JugadorPartida.findOne({ where: { userId: ganador1, partidaId: partidaId }})
+
+    if (!ganador1BD) {
+        return res.status(404).json({
+            data_send: "",
+            num_status: 6,
+            msg_status: 'jugador asignado como ganador1 no existe en esta partida'
+        });
+    }else{
+        ganador1BD.resultado = 'ganado'
+        ganador1BD.save()
+    }
+
+    if (ganador2){
+
+        const ganador2BD = await JugadorPartida.findOne({ where: { userId: ganador1, partidaId: partidaId } })
+    
+        if (!ganador2BD) {
+            return res.status(404).json({
+                data_send: "",
+                num_status: 6,
+                msg_status: 'jugador asignado como ganador2 no existe en esta partida'
+            });
+        }else{
+            ganador2BD.resultado = 'ganado'
+            ganador2BD.save()
+        }
+    }
+
 
     partida.ganador1 = ganador1
     partida.ganador2 = (ganador2) ? ganador2 : partida.ganador2
@@ -245,7 +286,51 @@ export const resultadoPartida = async (req: Request, res: Response): Promise<Res
 
 export const rankingJugador = async (req: Request, res: Response): Promise<Response> => {
 
-    const user = User.findAll({ include: { model: Partida, as: 'partidas' }}) 
+    let { tipo } = req.params;
+
+    let selectClausule = ''
+
+    if(!tipo){
+        selectClausule = `AND (p.tipo = 'torneo') `
+    }else{
+        selectClausule = `AND p.tipo = '${tipo}'  `
+    }
+
+    const users = await User.findAll({
+        attributes:  [
+            'id',
+            'nombre',
+            [Sequelize.literal('(SELECT COUNT(jp.id) FROM jugadores_partidas jp inner join partidas p on p.id = jp.partidaId WHERE jp.userId = `User`.`id` ' + selectClausule +' )'), 'partidasJugadas'],
+            [Sequelize.literal('(SELECT COUNT(jp.id) FROM jugadores_partidas jp inner join partidas p on p.id = jp.partidaId WHERE jp.userId = `User`.`id` AND jp.resultado = \'ganado\' ' + selectClausule +'  )'), 'partidasGanadas'],
+            [Sequelize.literal('(SELECT COUNT(jp.id) FROM jugadores_partidas jp inner join partidas p on p.id = jp.partidaId WHERE jp.userId = `User`.`id` AND jp.resultado = \'perdido\' ' + selectClausule +'  )'), 'partidasPerdidas'],
+            [Sequelize.literal('averageGanadas(\`User\`.\`id\`, \'' + tipo +'\')'), 'average']
+        ],
+        having: [
+            Sequelize.where(Sequelize.literal("partidasJugadas"), { [Op.gt]: 0 })
+        ]
+    }) 
+    
+
+    return res.status(201).json(
+        {
+            data_send: users,
+            num_status: 0,
+            msg_status: 'Exito.'
+        });
+}
+
+export const iniciarPartida = async (req: Request, res: Response): Promise<Response> => {
+    const { id } = req.params;
+
+    const partida = await Partida.findOne({
+        where: { id: id }
+    })
+
+    let data = { gameId: id, action: "playGame", time: partida?.duracionSegundos }; // ID de la partida a la que te quieres unir
+
+    var socket = io('http://localhost:3000');
+
+    socket.emit('joinGame', data);
 
     return res.status(201).json(
         {
@@ -254,4 +339,5 @@ export const rankingJugador = async (req: Request, res: Response): Promise<Respo
             msg_status: 'Exito.'
         });
 }
+
 

@@ -19,12 +19,12 @@ import passportMiddleware from './middlewares/protectedroutes.middleware'
 import session from 'express-session'
 import swaggerUi from "swagger-ui-express";
 import swggerSpec from './swagger'
+import { Server } from 'socket.io';
 
 //imported routes
-// import { router } from './routes';
 import router from './routes'
 
-//import fbkRoutes from './routes/fbk.routes'
+
 
 //conexión a la bd
 connectDB();
@@ -63,4 +63,6 @@ app.use(router)
 
 //swagger
 app.use("/docs", swaggerUi.serve,swaggerUi.setup(swggerSpec))
+
+
 export default app

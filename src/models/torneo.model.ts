@@ -3,6 +3,7 @@ import { DataType } from 'sequelize-typescript';
 import User from "./users.model";
 import AtletasTorneos from './atletasTorneos.model';
 import PremiosTorneos from './premioTorneo.model';
+import Club from './club.model';
 
 @Table({
     timestamps: true,
@@ -73,6 +74,12 @@ class Torneo extends Model {
         type: DataType.STRING
     })
     declare arbitro: string;
+
+    @ForeignKey(() => Club)
+    @Column({
+        type: DataType.STRING
+    })
+    declare clubId: string;
 
     @BelongsToMany(() => User, () => AtletasTorneos)
     declare atletas: User[];

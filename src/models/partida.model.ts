@@ -33,6 +33,11 @@ class Partida extends Model {
     declare cantidadJugadores: number
 
     @Column({
+        type: DataType.INTEGER
+    })
+    declare duracionSegundos: number 
+
+    @Column({
         type: DataType.INTEGER,
         defaultValue: 100
     })
