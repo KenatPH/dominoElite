@@ -165,11 +165,12 @@ export default router;
  *          type: object
  *          properties:
  *              mesas:
- *                type: array
- *                  example:
- *                      jugadores:
+ *                type: object
+ *                properties:
+ *                  jugadores: 
+ *                    example:
  *                       -  2ba3af9f-245e-47f2-bec6-30e6945804ee
  *                       -  2ba3af9f-245e-47f2-bec6-30e6945804ee
  *                       -  2ba3af9f-245e-47f2-bec6-30e6945804ee
- *                       -  2ba3af9f-245e-47f2-bec6-30e6945804ee      
+ *                 
  */         
