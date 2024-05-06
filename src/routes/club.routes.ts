@@ -13,7 +13,7 @@ router.get('/get/:id', getClub);
  *  post:
  *    summary: Registrar un nuevo torneo
  *    tags:
- *      - Torneo
+ *      - club
  *    requestBody:
  *        description: Optional description in 
  *        required: true

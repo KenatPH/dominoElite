@@ -40,7 +40,7 @@ app.use(passport.session());
 
 passport.use(passportMiddleware)
 
-
+app.use(express.static('src/public'));
 
 //routes
 app.get('/', (req, res) => {

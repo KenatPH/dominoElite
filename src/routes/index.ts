@@ -172,5 +172,57 @@ export default router;
  *                       -  2ba3af9f-245e-47f2-bec6-30e6945804ee
  *                       -  2ba3af9f-245e-47f2-bec6-30e6945804ee
  *                       -  2ba3af9f-245e-47f2-bec6-30e6945804ee
+ *      createPartidaSchema:
+ *          type: object
+ *          properties:
+ *              sistema:
+ *                  type: string
+ *                  description: sistema de la partida
+ *              tipo:
+ *                  type: string
+ *                  description: tipo de partida 'local' / 'torneo'
+ *              minutos:
+ *                  type: integer
+ *                  description: cantidad de minutos
+ *              segundos:
+ *                  type: integer
+ *                  description: cantidad de segundos
+ *              jugadores: 
+ *                  example:
+ *                    -  2ba3af9f-245e-47f2-bec6-30e6945804ee
+ *                    -  2ba3af9f-245e-47f2-bec6-30e6945804ee
+ *                    -  2ba3af9f-245e-47f2-bec6-30e6945804ee
+ *          required:
+ *             - sistema
+ *             - jugadores
+ *      resultadoPartidaSchema:
+ *          type: object
+ *          properties:
+ *              partidaId:
+ *                  type: string
+ *                  description: id de la partida
+ *              ganador1:
+ *                  type: string
+ *                  description: id del ganador
+ *              ganador2:
+ *                  type: string
+ *                  description: id del ganador
+ *          required:
+ *             - partidaId
+ *             - ganador1
+ *      asignarJugadorPartidaSchema:
+ *          type: object
+ *          properties:
+ *              partidaId:
+ *                  type: string
+ *                  description: id de la partida
+ *              jugadores: 
+ *                  example:
+ *                    -  2ba3af9f-245e-47f2-bec6-30e6945804ee
+ *                    -  2ba3af9f-245e-47f2-bec6-30e6945804ee
+ *                    -  2ba3af9f-245e-47f2-bec6-30e6945804ee
+ *          required:
+ *             - partidaId
+ *             - ganador1
  *                 
  */         

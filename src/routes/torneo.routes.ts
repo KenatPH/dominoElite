@@ -147,6 +147,7 @@ router.post('/update/:id', update);
  *        description: Error inesperado
  */
 router.post('/addAtletas/:id', addAtletas);
+
 /**
  * @swagger
  * /api/torneo/generarPartidasTorneo/{id}:

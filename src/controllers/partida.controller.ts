@@ -64,9 +64,9 @@ export const getPartida = async (req: Request, res: Response): Promise<Response>
 
 export const create = async (req: Request, res: Response): Promise<Response> => {
 
-    const { sistema, cantidadJugadores, tipo, torneo, jugadores, minutos, segundos  } = req.body;
+    const { sistema,  tipo, torneo, jugadores, minutos, segundos  } = req.body;
 
-    if (!cantidadJugadores || !jugadores || !sistema ) {
+    if (  !jugadores || !sistema ) {
 
         return res.status(409).json({
             data_send: "",
@@ -96,16 +96,9 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
     
         if (jugadores.length > 0){
 
-            if (cantidadJugadores != jugadores.length){
-                return res.status(409).json({
-                    data_send: "",
-                    num_status: 6,
-                    msg_status: 'verifique la cantidad de jugadores y los jugadores'
-                });
-            }
 
             const partida = new Partida({
-                sistema, cantidadJugadores, duracionSegundos,  tipo, torneo: (torneo && torneo.id) ? torneo.id:null
+                sistema, cantidadJugadores: jugadores.length, duracionSegundos,  tipo, torneo: (torneo && torneo.id) ? torneo.id:null
             });
 
             partida.save()
@@ -172,7 +165,7 @@ export const asignaJugadorAPartida = async (req: Request, res: Response): Promis
         });
     }
 
-    // falta validar cantidad de jugadores
+
     if (partida.jugadores.length === partida.cantidadJugadores){
         return res.status(409).json({
             data_send: "",
@@ -187,6 +180,7 @@ export const asignaJugadorAPartida = async (req: Request, res: Response): Promis
         if(!puestosFaltantes){
             return
         }
+        // Verifica si el jugafor existe en la partida y si existe no lo agrega
         if(!partida.jugadores.find(jugador => jugador.id === id)){
 
             const JP = new JugadorPartida({
@@ -288,7 +282,7 @@ export const resultadoPartida = async (req: Request, res: Response): Promise<Res
 
 export const rankingJugador = async (req: Request, res: Response): Promise<Response> => {
 
-    let { tipo } = req.params;
+    let { tipo, id } = req.params;
 
     let selectClausule = ''
 
@@ -297,8 +291,28 @@ export const rankingJugador = async (req: Request, res: Response): Promise<Respo
     }else{
         selectClausule = `AND p.tipo = '${tipo}'  `
     }
+    let where = {}
 
+    if(id){
+
+        const user = await User.findOne({ where: { id: id } });
+    
+        if (!user) {
+            return res.status(404).json({
+                data_send: "",
+                num_status: 6,
+                msg_status: 'User not found'
+            });
+        }
+
+        where = { id: id }
+
+    }
+
+        // Find the user by userId
+    
     const users = await User.findAll({
+        where:where,
         attributes:  [
             'id',
             'nombre',
@@ -311,6 +325,8 @@ export const rankingJugador = async (req: Request, res: Response): Promise<Respo
             Sequelize.where(Sequelize.literal("partidasJugadas"), { [Op.gt]: 0 })
         ]
     }) 
+    
+
     
 
     return res.status(201).json(
@@ -328,7 +344,15 @@ export const iniciarPartida = async (req: Request, res: Response): Promise<Respo
         where: { id: id }
     })
 
-    let data = { gameId: id, action: "playGame", time: partida?.duracionSegundos }; // ID de la partida a la que te quieres unir
+    if (!partida) {
+        return res.status(404).json({
+            data_send: "",
+            num_status: 6,
+            msg_status: 'partida no Encontrada'
+        });
+    }
+
+    let data = { gameId: id, action: "playGame", time: partida.duracionSegundos }; // ID de la partida a la que te quieres unir
 
     var socket = io(config.WS.HOST + ':'+config.WS.PORT);
 
@@ -336,7 +360,7 @@ export const iniciarPartida = async (req: Request, res: Response): Promise<Respo
 
     return res.status(201).json(
         {
-            data_send: "",
+            data_send: "Partida Iniciada",
             num_status: 0,
             msg_status: 'Exito.'
         });
