@@ -170,6 +170,7 @@ router.post('/resultadoPartida', resultadoPartida);
  *        description: Error inesperado
  */
 router.post('/asignaJugadores', asignaJugadorAPartida);
-router.get('/rankingJugador/:id', rankingJugador);
+
+router.get('/rankingJugador/:id?', rankingJugador);
 
 export default router;

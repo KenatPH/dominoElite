@@ -66,6 +66,13 @@ class Partida extends Model {
         type: DataType.STRING
     })
     declare clubId: String;
+
+    @Column({
+        type: DataType.STRING,
+        allowNull: false,
+        defaultValue: 'Nacional'
+    })
+    declare mesa: String
     
     @BelongsToMany(() => User, () => JugadorPartida)
     declare jugadores: User[];

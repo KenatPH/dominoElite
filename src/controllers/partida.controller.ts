@@ -8,6 +8,7 @@ import { Sequelize } from 'sequelize-typescript';
 import { Op } from "sequelize";
 import { io } from "socket.io-client";
 import config from "../config/config";
+import ColaNotificaciones from "../models/colaNotificaciones.model";
 
 
 export const getListPartida = async (req: Request, res: Response): Promise<Response> => {
@@ -166,7 +167,7 @@ export const asignaJugadorAPartida = async (req: Request, res: Response): Promis
     }
 
 
-    if (partida.jugadores.length === partida.cantidadJugadores){
+    if (partida.jugadores.length === 4){
         return res.status(409).json({
             data_send: "",
             num_status: 6,
@@ -237,7 +238,8 @@ export const resultadoPartida = async (req: Request, res: Response): Promise<Res
         });
     }else{
         ganador1BD.resultado = 'ganado'
-        ganador1BD.save()
+        await ganador1BD.save()
+        await ColaNotificaciones.create({ tipo: 'ganadorPartida', userId: ganador1, contexto: ''})
     }
 
     if (ganador2){
@@ -286,11 +288,11 @@ export const rankingJugador = async (req: Request, res: Response): Promise<Respo
 
     let selectClausule = ''
 
-    if(!tipo){
+    // if(!tipo){
         selectClausule = `AND (p.tipo = 'torneo') `
-    }else{
-        selectClausule = `AND p.tipo = '${tipo}'  `
-    }
+    // }else{
+    //     selectClausule = `AND p.tipo = '${tipo}'  `
+    // }
     let where = {}
 
     if(id){

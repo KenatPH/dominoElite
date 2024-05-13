@@ -6,9 +6,11 @@ import PremiosTorneos from "../models/premioTorneo.model";
 import Partida from "../models/partida.model";
 import JugadorPartida from "../models/jugadorPartida.model";
 import Club from "../models/club.model";
+import ColaNotificaciones from "../models/colaNotificaciones.model";
+import { where } from "sequelize";
 
 export const getListTorneo = async (req: Request, res: Response): Promise<Response> => {
-    const torneos = await Torneo.findAll()
+    const torneos = await Torneo.findAll({where:{ publico: true}})
     try {
 
         return res.status(201).json(torneos);
@@ -219,10 +221,13 @@ export const addAtletas = async (req: Request, res: Response): Promise<Response>
         });       
     }
 
-    let arregloDeAtletas = atletas.map((a:any) => { return { torneoId: id, userId:a}})
+    let arregloDeAtletasTorneo = atletas.map((a:any) => { return { torneoId: id, userId:a}})
+    let arregloDeAltetasNotif = atletas.map((a: any) => { return { tipo: 'invitacionTorneo', userId: a, contexto: JSON.stringify({ torneoNombre: torneo.nombre })  } })
 
     try {
-        await AtletasTorneos.bulkCreate(arregloDeAtletas)
+        await AtletasTorneos.bulkCreate(arregloDeAtletasTorneo)
+
+        await ColaNotificaciones.bulkCreate(arregloDeAltetasNotif)
 
         return res.status(201).json(
             {
@@ -286,14 +291,18 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
 
         await partida.save()
 
-        mesa.jugadores.forEach((j: any) => {
+        mesa.jugadores.forEach(async(jugador: any) => {
 
             const JP = new JugadorPartida({
                 partidaId: partida.id,
-                userId: j
+                userId: jugador,
+                mesa: mesa.nombre
             })
 
-            JP.save()
+            await JP.save()
+
+            await ColaNotificaciones.create({ tipo: 'mesaEnTorneo', userId: jugador, contexto: JSON.stringify({ mesa: mesa.nombre }) })
+
         });
 
     });
