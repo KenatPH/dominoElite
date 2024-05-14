@@ -30,7 +30,7 @@ export default {
       secretSession: "Aguila17_mejorando_el_mundo"
    },
    webpush:{
-      publicKey: production? process.env.PUBLIC_KEY_WP :'BPgm4VlLBMb0m5ambYzGPWHo2twJncZa5Gi0WNOiOdjvHe-itNrw4FB-LjLfciGerdyruqRhe65Qr0xOYZAfSoQ',
-      privateKey: production? process.env.PRIVATE_KEY_WP : '6vUWlr36g72GqwU2Poj3Pp2_uBURJ0auK_fLzhXLppI'
+      publicKey:  process.env.PUBLIC_KEY_WP ||'BPgm4VlLBMb0m5ambYzGPWHo2twJncZa5Gi0WNOiOdjvHe-itNrw4FB-LjLfciGerdyruqRhe65Qr0xOYZAfSoQ',
+      privateKey:  process.env.PRIVATE_KEY_WP || '6vUWlr36g72GqwU2Poj3Pp2_uBURJ0auK_fLzhXLppI'
    }
 }
