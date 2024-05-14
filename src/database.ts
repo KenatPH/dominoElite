@@ -13,8 +13,8 @@ import ColaNotificaciones from './models/colaNotificaciones.model';
 
 export const connectDB = async () => {
    try {
-
       const sequelize = new Sequelize({
+         host:config.DB.HOST,
          database: config.DB.DBNAME,
          dialect: 'mysql',
          username: config.DB.USER,
