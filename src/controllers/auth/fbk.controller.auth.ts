@@ -40,7 +40,7 @@ import { Strategy as FbkStrategy } from 'passport-facebook';
       callbackURL: config.FBK.callBackUrl //http://localhost:3000/auth/facebook/callback
    },
    
-      function(accessToken, refreshToken, profile, done) {
+      function(accessToken: any, refreshToken: any, profile: any, done: (arg0: null, arg1: any) => any) {
          console.log('Login User with facebook 4'); 
          return done(null, profile);
       }

@@ -9,6 +9,7 @@ import { Op } from "sequelize";
 import { io } from "socket.io-client";
 import config from "../config/config";
 import ColaNotificaciones from "../models/colaNotificaciones.model";
+import { log } from "console";
 
 
 export const getListPartida = async (req: Request, res: Response): Promise<Response> => {
@@ -340,6 +341,7 @@ export const rankingJugador = async (req: Request, res: Response): Promise<Respo
 }
 
 export const iniciarPartida = async (req: Request, res: Response): Promise<Response> => {
+
     const { id } = req.params;
 
     const partida = await Partida.findOne({
@@ -353,12 +355,22 @@ export const iniciarPartida = async (req: Request, res: Response): Promise<Respo
             msg_status: 'partida no Encontrada'
         });
     }
+    try {
+        let data = { gameId: id, action: "initGame", time: partida.duracionSegundos }; // ID de la partida a la que te quieres unir
 
-    let data = { gameId: id, action: "playGame", time: partida.duracionSegundos }; // ID de la partida a la que te quieres unir
+        const urlSocket = 'http://'+config.WS.HOST + ':' + config.WS.PORT
+        
+        var socket = io(urlSocket);
 
-    var socket = io(config.WS.HOST + ':'+config.WS.PORT);
+        socket.emit('joinGame', data);
+        
+    } catch (error) {
+        console.log(error);
+        
+    }
 
-    socket.emit('joinGame', data);
+
+
 
     return res.status(201).json(
         {

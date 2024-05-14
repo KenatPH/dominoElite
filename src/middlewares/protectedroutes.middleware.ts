@@ -1,14 +1,3 @@
-/*
-  Empresa         : Bioonix
-  Aplicación      : Api de Dominó
-  Módulo          : Archivo para verificar acceso a las rutas protegidas del sistema
-  Fecha creación  : 27 de Mar del 2024
-  Modificado el   :
-  Programador     : JLRAMIREZ
-  Colaboración    :
-  Descripción     : Api para enviar y manejar la información de Dominó
-*/
-
 import express, { Request, Response } from "express";
 import {Strategy, ExtractJwt, StrategyOptions}  from 'passport-jwt'
 import config from '../config/config'
