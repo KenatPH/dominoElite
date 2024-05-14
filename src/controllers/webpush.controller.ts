@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import SubscripcionesPush from "../models/subscripcionesPush.model";
 import { NotificacionPush } from "../classes/NotificacionPush.Class";
+import User from "../models/users.model";
 
 
 
@@ -60,8 +61,9 @@ export const enviarNotificacion = async (req: Request, res: Response): Promise<R
             msg_status: 'El campos userId es obligatorio'
         })
     }
+    const user = await User.findOne({ where:{id:userId}}) 
 
-    const NotPus = new NotificacionPush(userId, 'invitacionTorneo' )
+    const NotPus = new NotificacionPush(userId, 'invitacionTorneo', JSON.stringify({ email: 'krtabares@gmail.com', torneoNombre:"Gran torneo" })  )
 
     NotPus.enviarNotificacion()
 

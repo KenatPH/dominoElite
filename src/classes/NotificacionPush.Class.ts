@@ -19,10 +19,12 @@ export class NotificacionPush {
     }
     userId = ''
     tipo = ''
+    contexto = {}
 
-    constructor(userId:string, tipo:string) {
+    constructor(userId:string, tipo:string, contexto:any) {
         this.userId = userId
         this.tipo = tipo
+        this.contexto =contexto
         this.tipoNotificacion()
     }
 
@@ -69,7 +71,7 @@ export class NotificacionPush {
         //         console.log('Error', err);
         //     })
 
-        await ColaNotificaciones.create( { tipo: 'invitacionTorneo', userId: this.userId } )
+        await ColaNotificaciones.create( { tipo: 'invitacionTorneo', userId: this.userId, contexto:this.contexto } )
 
     }
 

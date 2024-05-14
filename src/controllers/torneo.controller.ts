@@ -86,6 +86,8 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
                     msg_status: 'arbitro not found'
                 });
             }
+
+            await ColaNotificaciones.create({ tipo: 'esArbitro', userId: arbitro.id, contexto: JSON.stringify({ email: arbitroDB?.email, nombreTorneo: nombre }) })
         }
 
         let clubDB = null
@@ -221,10 +223,32 @@ export const addAtletas = async (req: Request, res: Response): Promise<Response>
         });       
     }
 
-    let arregloDeAtletasTorneo = atletas.map((a:any) => { return { torneoId: id, userId:a}})
-    let arregloDeAltetasNotif = atletas.map((a: any) => { return { tipo: 'invitacionTorneo', userId: a, contexto: JSON.stringify({ torneoNombre: torneo.nombre })  } })
-
+    
     try {
+        let arregloDeAtletasTorneo:any[] = []
+        let arregloDeAltetasNotif:any[] = []
+        // let arregloDeAtletasTorneo = atletas.map((a: any) => { return { torneoId: id, userId: a } })
+        // let arregloDeAltetasNotif = atletas.map((a: any) => { return { tipo: 'invitacionTorneo', userId: a, contexto: JSON.stringify({ torneoNombre: torneo.nombre }) } })
+
+        const users = await User.findAll({ where: { id: atletas } })
+    
+        users.forEach(async (user) => {
+    
+            if (!user){
+                return res.status(404).json({
+                    data_send: "",
+                    num_status: 6,
+                    msg_status: 'usuario no encontrado'
+                });      
+            }
+    
+            arregloDeAtletasTorneo.push({ torneoId: id, userId: user.id })
+            arregloDeAltetasNotif.push({ tipo: 'invitacionTorneo', userId: user.id, contexto: JSON.stringify({ torneoNombre: torneo.nombre, email:user.email }) })
+            
+        });
+    
+
+
         await AtletasTorneos.bulkCreate(arregloDeAtletasTorneo)
 
         await ColaNotificaciones.bulkCreate(arregloDeAltetasNotif)

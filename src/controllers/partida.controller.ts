@@ -228,9 +228,9 @@ export const resultadoPartida = async (req: Request, res: Response): Promise<Res
             msg_status: 'partida no Encontrada'
         });
     }
+
     // valida si los ganadores estan jugando en esta partida
     const ganador1BD = await JugadorPartida.findOne({ where: { userId: ganador1, partidaId: partidaId }})
-
     if (!ganador1BD) {
         return res.status(404).json({
             data_send: "",
@@ -240,13 +240,12 @@ export const resultadoPartida = async (req: Request, res: Response): Promise<Res
     }else{
         ganador1BD.resultado = 'ganado'
         await ganador1BD.save()
-        await ColaNotificaciones.create({ tipo: 'ganadorPartida', userId: ganador1, contexto: ''})
+        const u2 =  await User.findOne({ where: { id: ganador1 }})
+        await ColaNotificaciones.create({ tipo: 'ganadorPartida', userId: ganador1, contexto: JSON.stringify({ email: u2?.email})})
     }
-
+    // valida si tiene un segundo ganador
     if (ganador2){
-
         const ganador2BD = await JugadorPartida.findOne({ where: { userId: ganador1, partidaId: partidaId } })
-    
         if (!ganador2BD) {
             return res.status(404).json({
                 data_send: "",
@@ -256,8 +255,20 @@ export const resultadoPartida = async (req: Request, res: Response): Promise<Res
         }else{
             ganador2BD.resultado = 'ganado'
             ganador2BD.save()
+            const u1 = await User.findOne({ where: { id: ganador1 } })
+            await ColaNotificaciones.create({ tipo: 'ganadorPartida', userId: ganador1, contexto: JSON.stringify({ email: u1?.email }) })
         }
     }
+    // notificaciones para perdedore4s
+    const perdedores = await User.findAll({
+        where:{
+            id: { [Op.notIn]: [ganador1, ganador2] }
+        }
+    })
+
+    perdedores.forEach(async(user) => {
+        await ColaNotificaciones.create({ tipo: 'perdedorPartida', userId: user.id, contexto: JSON.stringify({ email: user?.email }) })
+    });
 
 
     partida.ganador1 = ganador1
@@ -368,8 +379,6 @@ export const iniciarPartida = async (req: Request, res: Response): Promise<Respo
         console.log(error);
         
     }
-
-
 
 
     return res.status(201).json(
