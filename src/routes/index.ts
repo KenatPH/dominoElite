@@ -110,6 +110,8 @@ export default router;
  *                  type: integer
  *              segundos:
  *                  type: integer
+ *              fecha:
+ *                  type: integer
  *              arbitro:
  *                  type: string
  *                  example:
@@ -122,7 +124,6 @@ export default router;
  *                      - premio tres
  *          required:
  *             - sistema
- *             - nombre
  *             - rondas
  *      updateTorneoSchema:
  *          type: object

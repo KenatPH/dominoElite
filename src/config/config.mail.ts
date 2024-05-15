@@ -3,7 +3,7 @@ import config from "./config";
 
 const path_confirm = config.MAIL.path_confirm;
 
-let transporter = nmailer.createTransport({
+ export const transporter = nmailer.createTransport({
    host  : "smtp.gmail.com",
    port  : 465,
    secure: true, //true for port 465, false for other ports

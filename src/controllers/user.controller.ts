@@ -1,18 +1,10 @@
-/*
-  Empresa         : Bioonix
-  Aplicación      : Api de Dominó
-  Módulo          : Archivo para crud de usuarios
-  Fecha creación  : 25 de Mar del 2024
-  Modificado el   :
-  Programador     : JLRAMIREZ
-  Colaboración    :
-  Descripción     : Api para enviar y manejar la información de Dominó
-*/
-
 import express, { Request, Response } from "express";
 import User from "../models/users.model";
 import {getToken, getTokenData} from "../config/config.jwt";
-import {sendMail, getTemplateHtml} from "../config/config.mail";
+import {sendMail, getTemplateHtml, transporter} from "../config/config.mail";
+import nodemailer from 'nodemailer';
+import { v4 as uuidv4 } from 'uuid';
+import { Op } from "sequelize";
 
 
 export const update = async (req: Request, res: Response): Promise<Response> => {
@@ -90,4 +82,85 @@ export const deleteUser = async (req: Request, res: Response): Promise<Response>
          message: error
       });
    }
+}
+
+
+export const forgotPassword = async (req: Request, res: Response): Promise<Response> => {
+   
+   const { email } = req.body;
+
+   const token = uuidv4();
+   // Encuentra al usuario basado en el correo electrónico proporcionado
+   const user = await User.findOne({ where: { email: email } });
+
+   if (!user) {
+      return res.status(404).json({
+         data_send: "",
+         num_status: 6,
+         msg_status: 'User not found'
+      });
+   }
+
+   // Establece los campos de restablecimiento de contraseña en el usuario
+   user.resetPasswordToken = token;
+   user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
+   await user.save();
+
+   // Configura el servicio de correo electrónico
+
+   // Configura el correo electrónico
+   
+   // Envía el correo electrónico
+   await transporter.sendMail({
+      to: user.email,
+      from: 'tuCorreo@gmail.com',
+      subject: 'Restablecimiento de contraseña',
+      text: `Recibiste este correo electrónico porque tú (u otra persona) solicitaste el restablecimiento de la contraseña de tu cuenta.\n\n
+           Haz clic en el siguiente enlace, o pégalo en tu navegador para completar el proceso:\n\n
+           http://${req.headers.host}/reset/${token}\n\n
+           Si no solicitaste este cambio, ignora este correo electrónico y tu contraseña permanecerá sin cambios.\n`,
+   });
+
+   return res.status(200).json({
+      data_send: "",
+      num_status: 0,
+      msg_status: 'Correo electrónico de restablecimiento de contraseña enviado'
+   });
+
+}
+
+export const resetPassword = async (req: Request, res: Response): Promise<Response> => {
+
+   const { token } = req.params;
+
+   const user = await User.findOne({
+      where: {
+         resetPasswordToken: token,
+         resetPasswordExpires: { [Op.gt]: Date.now() },
+      },
+   });
+
+   if (!user) {
+      return res.status(404).json({
+         data_send: "",
+         num_status: 6,
+         msg_status: 'El token de restablecimiento de contraseña es inválido o ha expirado'
+      });
+   }
+
+   // Establece la nueva contraseña
+   user.clave = req.body.clave;
+   user.resetPasswordToken = '';
+   user.resetPasswordExpires = 0;
+
+   await user.save();
+
+
+   return res.status(200).json({
+      data_send: "",
+      num_status: 0,
+      msg_status: 'Contraseña cambiada con éxito'
+   });
+
+
 }

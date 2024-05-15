@@ -23,7 +23,7 @@ export default {
    },
    FBK: {
       clientID: process.env.FBK_ID || "730716712424276",
-      clientSecret: process.env.FBK_SECRET || "7080d44bea7e664b3b9acc722620a202",
+      clientSecret: process.env.FBK_SECRET || "6ea3e64eb6c5df2a52039dd3b4c4b867",
       callBackUrl: "http://localhost:3000/auth/facebook/callback",
       secretSession: "Aguila17_mejorando_el_mundo"
    },

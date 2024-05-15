@@ -67,12 +67,12 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
         const { nombre, ubicacion, puntos, rondas, publico, club,
             sistema, arbitro, minutos, segundos, premios } = req.body;
         
-        if (!nombre || !ubicacion || !puntos || !rondas || !sistema ){
+        if ( !ubicacion || !puntos || !rondas || !sistema ){
 
             return res.status(409).json({
                 data_send: "",
                 num_status: 1,
-                msg_status: 'Los campos nombre, ubicacion, puntos, rondas, sistema son obligatorios'
+                msg_status: 'Los campos  ubicacion, puntos, rondas, sistema son obligatorios'
             })
         }
         

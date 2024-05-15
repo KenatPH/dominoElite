@@ -1,16 +1,6 @@
-/*
-  Empresa         : Bioonix
-  Aplicación      : Api de Dominó
-  Módulo          : Archivo para definir las rutas de acciones sobre usuarios (CRUD)
-  Fecha creación  : 27 de Mar del 2024
-  Modificado el   :
-  Programador     : JLRAMIREZ
-  Colaboración    :
-  Descripción     : Api para enviar y manejar la información de Dominó
-*/
 
 import { Router } from "express";
-import { update, deleteUser } from "../controllers/user.controller";
+import { update, deleteUser, forgotPassword, resetPassword } from "../controllers/user.controller";
 
 const router = Router();
 router.put('/update/:id', update);
@@ -35,5 +25,67 @@ router.delete('/delete/:id', deleteUser);
 router.get('/buscar', (req, res) => {
    res.send('Buscando usuario')
 });
+
+
+/**
+ * @swagger
+ * /api/user/forgotPassword:
+ *  post:
+ *    summary: Olvido contraseña
+ *    tags:
+ *      - Usuarios
+ *    requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                email:
+ *                    type: string
+ *                    format: email
+ *                    description: correo electronico del usuario
+ *    responses:
+ *      200:
+ *        description: User updated successfully
+ *      404:
+ *        description: User not found
+ *      500:
+ *        description: Error inesperado
+ */
+
+router.post('/forgotPassword', forgotPassword)
+
+/**
+ * @swagger
+ * /api/user/reset/{token}:
+ *  post:
+ *    summary: Reiniciar contraseña
+ *    parameters:
+ *      - in: path
+ *        name: token
+ *        required: true
+ *        type: string
+ *        description: token de uso para reuniciar contraseña
+ *    tags:
+ *      - Usuarios
+ *    requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                clave:
+ *                    type: string
+ *    responses:
+ *      200:
+ *        description: User updated successfully
+ *      404:
+ *        description: User not found
+ *      500:
+ *        description: Error inesperado
+ */
+router.post('/reset/:token', resetPassword)
 
 export default router;

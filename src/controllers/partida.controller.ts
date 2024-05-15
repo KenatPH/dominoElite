@@ -9,7 +9,6 @@ import { Op } from "sequelize";
 import { io } from "socket.io-client";
 import config from "../config/config";
 import ColaNotificaciones from "../models/colaNotificaciones.model";
-import { log } from "console";
 
 
 export const getListPartida = async (req: Request, res: Response): Promise<Response> => {

@@ -1,13 +1,3 @@
-/*
-  Empresa         : Bioonix
-  Aplicación      : Api de Dominó
-  Módulo          : Archivo para definir inicio de sesion de usuarios por facebook
-  Fecha creación  : 01 de Abr del 2024
-  Modificado el   :
-  Programador     : JLRAMIREZ
-  Colaboración    :
-  Descripción     : Api para enviar y manejar la información de Dominó
-*/
 
 import express, { Request, Response } from "express";
 import User from "../../models/users.model";

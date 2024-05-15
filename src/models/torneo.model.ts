@@ -69,6 +69,11 @@ class Torneo extends Model {
     })
     declare publico: boolean
 
+    @Column({
+        type: DataType.DATE
+    })
+    declare fecha:any
+
     @ForeignKey(() => User)
     @Column({
         type: DataType.STRING

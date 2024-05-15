@@ -40,7 +40,7 @@ class User extends Model {
       type: DataType.STRING,
       allowNull: false
    })
-   declare email: String
+   declare email: string
 
    @Column({
       type: DataType.STRING,
@@ -93,6 +93,16 @@ class User extends Model {
       type: DataType.STRING
    })
    declare clubId: String;
+
+   @Column({
+      type: DataType.STRING
+   })
+   declare resetPasswordToken: String
+
+   @Column({
+      type: DataType.DATE
+   })
+   declare resetPasswordExpires: number
 
    @BelongsTo(() => Club)
    declare club: Club;
