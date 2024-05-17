@@ -65,7 +65,7 @@ export const getTorneo = async (req: Request, res: Response): Promise<Response> 
 export const create = async (req: Request, res: Response): Promise<Response> => {
 
         const { nombre, ubicacion, puntos, rondas, publico, club,
-            sistema, arbitro, minutos, segundos, premios } = req.body;
+            sistema, arbitro, minutos, segundos, premios, fecha, entrada } = req.body;
         
         if ( !ubicacion || !puntos || !rondas || !sistema ){
 
@@ -87,7 +87,7 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
                 });
             }
 
-            await ColaNotificaciones.create({ tipo: 'esArbitro', userId: arbitro.id, contexto: JSON.stringify({ email: arbitroDB?.email, nombreTorneo: nombre }) })
+            await ColaNotificaciones.create({ tipo: 'esArbitro', userId: arbitro.id, contexto: JSON.stringify({ email: arbitroDB?.email, telefono: arbitroDB?.telefono, nombreTorneo: nombre }) })
         }
 
         let clubDB = null
@@ -115,9 +115,12 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
             rondas,
             sistema,
             publico,
+            entrada,
+            fecha,
             arbitro: (arbitroDB)? arbitro.id:null ,
             duracionSegundos,
-            clubId: (clubDB)? club.id:null
+            clubId: (clubDB)? club.id:null,
+            
         });
 
     try {
@@ -243,7 +246,7 @@ export const addAtletas = async (req: Request, res: Response): Promise<Response>
             }
     
             arregloDeAtletasTorneo.push({ torneoId: id, userId: user.id })
-            arregloDeAltetasNotif.push({ tipo: 'invitacionTorneo', userId: user.id, contexto: JSON.stringify({ torneoNombre: torneo.nombre, email:user.email }) })
+            arregloDeAltetasNotif.push({ tipo: 'invitacionTorneo', userId: user.id, contexto: JSON.stringify({ torneoNombre: torneo.nombre, email: user.email, telefono: user.telefono }) })
             
         });
     
@@ -303,49 +306,57 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
             msg_status: 'parametro mesas requerido'
         });
     }
+    try {
+        
+        mesas.forEach(async(mesa:any) => {
+            
+            const partida = new Partida({
+                sistema: torneo.sistema,
+                tipo: "torneo",
+                torneoId: id
+            });
+    
+            await partida.save()
+    
+            // busca toddos los jugadores
+            const users = await User.findAll({ where: { id: mesa.jugadores } })
+    
+            // arreglos para hacer bulkCreate
+            const toCreatePartida = users.map((u: any) => { return { partidaId: partida.id, userId: u.id, mesa: mesa.nombre } })
+    
+            const toColaNotificacion = users.map((u: any) => { return { tipo: 'mesaEnTorneo', userId: u.id, contexto: JSON.stringify({ mesa: mesa.nombre, email: u?.email, telefono: u?.telefono }) } })
+    
+            // crea todas las relaciones con la partida en BD
+            await JugadorPartida.bulkCreate(toCreatePartida)
+    
+            // envia las notificaciones
+            await ColaNotificaciones.bulkCreate(toColaNotificacion)
+    
+    
+        });
+    
+    
+        const partidas = await Partida.findAll({
+            where: { torneoId: id },
+            include: [
+                { model: User, as: 'jugadores', attributes: ['id', 'nombre'] }
+            ] 
+        })
+    
+        return res.status(201).json(
+            {
+                data_send: partidas,
+                num_status: 0,
+                msg_status: 'Torneo Actualizado correctamente.'
+            }
+        );
+    } catch (error) {
+        return res.status(500).json({
+            message: error
+        });
+    }
     
 
-    mesas.forEach(async(mesa:any) => {
-        
-        const partida = new Partida({
-            sistema: torneo.sistema,
-            tipo: "torneo",
-            torneoId: id
-        });
-
-        await partida.save()
-
-        mesa.jugadores.forEach(async(jugador: any) => {
-
-            const JP = new JugadorPartida({
-                partidaId: partida.id,
-                userId: jugador,
-                mesa: mesa.nombre
-            })
-
-            await JP.save()
-
-            await ColaNotificaciones.create({ tipo: 'mesaEnTorneo', userId: jugador, contexto: JSON.stringify({ mesa: mesa.nombre }) })
-
-        });
-
-    });
-
-
-    const partidas = await Partida.findAll({
-        where: { torneoId: id },
-        include: [
-            { model: User, as: 'jugadores', attributes: ['id', 'nombre'] }
-        ] 
-    })
-
-    return res.status(201).json(
-        {
-            data_send: partidas,
-            num_status: 0,
-            msg_status: 'Torneo Actualizado correctamente.'
-        }
-    );
 }
 
 //TODO eliminar partidas

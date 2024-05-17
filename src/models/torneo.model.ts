@@ -86,6 +86,12 @@ class Torneo extends Model {
     })
     declare clubId: string;
 
+    @Column({
+        type: DataType.INTEGER,
+        defaultValue: 0
+    })
+    declare entrada: number 
+
     @BelongsToMany(() => User, () => AtletasTorneos)
     declare atletas: User[];
 

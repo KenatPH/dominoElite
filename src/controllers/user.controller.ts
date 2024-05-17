@@ -117,7 +117,7 @@ export const forgotPassword = async (req: Request, res: Response): Promise<Respo
       subject: 'Restablecimiento de contraseña',
       text: `Recibiste este correo electrónico porque tú (u otra persona) solicitaste el restablecimiento de la contraseña de tu cuenta.\n\n
            Haz clic en el siguiente enlace, o pégalo en tu navegador para completar el proceso:\n\n
-           http://${req.headers.host}/reset/${token}\n\n
+           http://dominoelite.com/reset/${token}\n\n
            Si no solicitaste este cambio, ignora este correo electrónico y tu contraseña permanecerá sin cambios.\n`,
    });
 

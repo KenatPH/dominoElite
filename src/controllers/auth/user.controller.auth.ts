@@ -59,14 +59,14 @@ export const register = async (req: Request, res: Response): Promise<Response> =
       const html = getTemplateHtml(nombre, token, afiliado);
 
       //Enviar email
-      await sendMail(email, 'Confirmar cuenta', html);
+      // await sendMail(email, 'Confirmar cuenta', html);
 
 
       return res.status(201).json(
       {  
          data_send: newUser,         
          num_status:0,
-         msg_status: 'User created successfully, an email has been sent to confirm your account, check your spam folder.'
+         msg_status: 'User created successfully'
       });
       
    } catch (error) {

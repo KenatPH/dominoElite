@@ -240,7 +240,7 @@ export const resultadoPartida = async (req: Request, res: Response): Promise<Res
         ganador1BD.resultado = 'ganado'
         await ganador1BD.save()
         const u2 =  await User.findOne({ where: { id: ganador1 }})
-        await ColaNotificaciones.create({ tipo: 'ganadorPartida', userId: ganador1, contexto: JSON.stringify({ email: u2?.email})})
+        await ColaNotificaciones.create({ tipo: 'ganadorPartida', userId: ganador1, contexto: JSON.stringify({ email: u2?.email, telefono:u2?.telefono })})
     }
     // valida si tiene un segundo ganador
     if (ganador2){
@@ -255,7 +255,7 @@ export const resultadoPartida = async (req: Request, res: Response): Promise<Res
             ganador2BD.resultado = 'ganado'
             ganador2BD.save()
             const u1 = await User.findOne({ where: { id: ganador1 } })
-            await ColaNotificaciones.create({ tipo: 'ganadorPartida', userId: ganador1, contexto: JSON.stringify({ email: u1?.email }) })
+            await ColaNotificaciones.create({ tipo: 'ganadorPartida', userId: ganador1, contexto: JSON.stringify({ email: u1?.email, telefono: u1?.telefono }) })
         }
     }
     // notificaciones para perdedore4s
@@ -266,7 +266,7 @@ export const resultadoPartida = async (req: Request, res: Response): Promise<Res
     })
 
     perdedores.forEach(async(user) => {
-        await ColaNotificaciones.create({ tipo: 'perdedorPartida', userId: user.id, contexto: JSON.stringify({ email: user?.email }) })
+        await ColaNotificaciones.create({ tipo: 'perdedorPartida', userId: user.id, contexto: JSON.stringify({ email: user?.email, telefono: user?.telefono }) })
     });
 
 
