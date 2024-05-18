@@ -40,6 +40,9 @@ class JugadorPartida extends Model {
     })
     declare resultado: String
 
+    @BelongsTo(() => Partida)
+    declare partida: Partida;
+
 }
 
 export default JugadorPartida

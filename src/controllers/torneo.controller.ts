@@ -7,7 +7,8 @@ import Partida from "../models/partida.model";
 import JugadorPartida from "../models/jugadorPartida.model";
 import Club from "../models/club.model";
 import ColaNotificaciones from "../models/colaNotificaciones.model";
-import { where } from "sequelize";
+import { Op, Sequelize, where } from "sequelize";
+import { emparejamiento } from "../classes/emparejamientosTorneo.class";
 
 export const getListTorneo = async (req: Request, res: Response): Promise<Response> => {
     const torneos = await Torneo.findAll({where:{ publico: true}})
@@ -127,8 +128,11 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
   
         await torneo.save();
 
-        let arregloDepremios = premios.map((a: any) => { return { torneoId: torneo.id, descripcion: a.descripcion } })
-        await PremiosTorneos.bulkCreate(arregloDepremios)
+        if(premios){
+
+            let arregloDepremios = premios.map((a: any) => { return { torneoId: torneo.id, descripcion: a } })
+            await PremiosTorneos.bulkCreate(arregloDepremios)
+        }
 
         return res.status(201).json(
             {
@@ -148,7 +152,7 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
     
     const { id } = req.params;
 
-    const { nombre, ubicacion, puntos, rondas, publico, sistema, arbitro, minutos, segundos } = req.body;
+    const { nombre, ubicacion, puntos, rondas, publico, sistema, arbitro, minutos, segundos, fecha, entrada } = req.body;
 
     const torneo = await Torneo.findOne({where: {id:id}})
 
@@ -182,6 +186,8 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
     torneo.rondas = (rondas)? rondas: torneo.rondas
     torneo.publico = (publico)? publico: torneo.publico
     torneo.sistema = (sistema)? sistema: torneo.sistema
+    torneo.nombre = (fecha) ? fecha : torneo.fecha
+    torneo.nombre = (entrada) ? entrada : torneo.entrada
     torneo.arbitro = (arbitroDB)? arbitro.id : torneo.arbitro
     torneo.duracionSegundos = duracionSegundos
 
@@ -272,14 +278,15 @@ export const addAtletas = async (req: Request, res: Response): Promise<Response>
 
 }
 
+// editarpremios
+
 //TODO eliminar atletas
 
 export const generarPartidasTorneo = async (req: Request, res: Response): Promise<Response> => {
 
     const { id } = req.params;
-    const {  mesas } = req.body;
 
-    if (!id || !mesas) {
+    if (!id ) {
 
         return res.status(409).json({
             data_send: "",
@@ -288,7 +295,7 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
         })
     }
 
-    const torneo = await Torneo.findOne({ where: { id: id } })
+    const torneo = await Torneo.findOne({ where: { id: id }, include: [{ model: User, as: 'atletas', attributes: ['id', 'nombre'] },] })
 
     if (!torneo) {
         return res.status(404).json({
@@ -299,32 +306,30 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
     }
 
 
-    if(!mesas && !mesas.length){
-        return res.status(404).json({
-            data_send: "",
-            num_status: 6,
-            msg_status: 'parametro mesas requerido'
-        });
-    }
+
     try {
+
+        const mesas = agruparEnMesas(torneo.atletas,4)
+
+        console.log(mesas);
         
-        mesas.forEach(async(mesa:any) => {
+        
+        mesas.forEach(async(users:any,i) => {
             
             const partida = new Partida({
                 sistema: torneo.sistema,
                 tipo: "torneo",
-                torneoId: id
+                torneoId: id,
+                mesa: i
             });
     
             await partida.save()
     
-            // busca toddos los jugadores
-            const users = await User.findAll({ where: { id: mesa.jugadores } })
     
             // arreglos para hacer bulkCreate
-            const toCreatePartida = users.map((u: any) => { return { partidaId: partida.id, userId: u.id, mesa: mesa.nombre } })
+            const toCreatePartida = users.map((u: any) => { return { partidaId: partida.id, userId: u.id, mesa: i } })
     
-            const toColaNotificacion = users.map((u: any) => { return { tipo: 'mesaEnTorneo', userId: u.id, contexto: JSON.stringify({ mesa: mesa.nombre, email: u?.email, telefono: u?.telefono }) } })
+            const toColaNotificacion = users.map((u: any) => { return { tipo: 'mesaEnTorneo', userId: u.id, contexto: JSON.stringify({ mesa: i, email: u?.email, telefono: u?.telefono }) } })
     
             // crea todas las relaciones con la partida en BD
             await JugadorPartida.bulkCreate(toCreatePartida)
@@ -359,6 +364,48 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
 
 }
 
+
+export const generarRondaTorneo = async (req: Request, res: Response): Promise<Response> => {
+
+    const { id } = req.params;
+
+
+
+     let e = new emparejamiento(id)
+
+
+    return res.status(201).json(
+        {
+            data_send: users,
+            num_status: 0,
+            msg_status: 'Torneo Actualizado correctamente.'
+        }
+    );
+
+}
+
 //TODO eliminar partidas
+
+
+function agruparEnMesas(jugadores:any, jugadoresPorMesa:any) {
+    const mesas = [];
+    let mesaActual = [];
+
+    for (const jugador of jugadores) {
+        mesaActual.push(jugador);
+
+        if (mesaActual.length === jugadoresPorMesa) {
+            mesas.push(mesaActual);
+            mesaActual = [];
+        }
+    }
+
+    // Si quedan jugadores sin asignar a mesas completas
+    if (mesaActual.length > 0) {
+        mesas.push(mesaActual);
+    }
+
+    return mesas;
+}
 
 

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getListPartida, create, getPartida, asignaJugadorAPartida, resultadoPartida, rankingJugador, iniciarPartida } from "../controllers/partida.controller";
+import { getListPartida, create, getPartida, asignaJugadorAPartida, resultadoPartida, rankingJugador, iniciarPartida, getpartidaActivaPorUsuario } from "../controllers/partida.controller";
 
 const router = Router();
 
@@ -63,6 +63,33 @@ router.get('/torneo/:torneo', getListPartida);
  * 
  */
 router.get('/get/:id', getPartida);
+
+/**
+ * @swagger
+ * /api/partida/get/usuario/{userId}:
+ *  get:
+ *    summary: obtener partida por id de usario
+ *    parameters:
+ *      - in: path
+ *        name: userId
+ *        required: true
+ *        type: string
+ *        minimum: 1
+ *        description: uuid del usuario
+ *    tags:
+ *      - Partidas
+ *    produces:
+ *      - application/json
+ *    responses:
+ *      200:
+ *        description: ok
+ *      400:
+ *        description: partida no encontrada
+ *      500:
+ *        description: Error inesperado
+ * 
+ */
+router.get('/get/usuario/:userId', getpartidaActivaPorUsuario);
 
 /**
  * @swagger

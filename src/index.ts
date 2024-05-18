@@ -9,7 +9,10 @@
 */
 
 import app from './app'
+import { emparejamiento } from './classes/emparejamientosTorneo.class'
 import './database'
+
+//  let e = new emparejamiento()
 
 app.listen(app.get('port'))
 console.log(`Server Domino is running in port: ${app.get('port')}`)

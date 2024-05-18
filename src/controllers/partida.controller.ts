@@ -63,6 +63,30 @@ export const getPartida = async (req: Request, res: Response): Promise<Response>
     }
 }
 
+export const getpartidaActivaPorUsuario = async (req: Request, res: Response): Promise<Response> => {
+    const { userId } = req.params;
+
+    const partidas = await JugadorPartida.findAll({
+        where: { userId: userId },
+        include: [{ model: Partida, as: 'partida', attributes: ["id", "sistema", "tipo"], where: { estatus:'activo' }  }]
+    })
+   
+    try {
+
+        return res.status(201).json(
+            {
+                data_send: partidas,
+                num_status: 0,
+                msg_status: 'partida obtenida correctamente.'
+            }
+        );
+    } catch (error) {
+        return res.status(500).json({
+            message: error
+        });
+    }
+}
+
 export const create = async (req: Request, res: Response): Promise<Response> => {
 
     const { sistema,  tipo, torneo, jugadores, minutos, segundos  } = req.body;
@@ -332,7 +356,7 @@ export const rankingJugador = async (req: Request, res: Response): Promise<Respo
             [Sequelize.literal('(SELECT COUNT(jp.id) FROM jugadores_partidas jp inner join partidas p on p.id = jp.partidaId WHERE jp.userId = `User`.`id` ' + selectClausule +' )'), 'partidasJugadas'],
             [Sequelize.literal('(SELECT COUNT(jp.id) FROM jugadores_partidas jp inner join partidas p on p.id = jp.partidaId WHERE jp.userId = `User`.`id` AND jp.resultado = \'ganado\' ' + selectClausule +'  )'), 'partidasGanadas'],
             [Sequelize.literal('(SELECT COUNT(jp.id) FROM jugadores_partidas jp inner join partidas p on p.id = jp.partidaId WHERE jp.userId = `User`.`id` AND jp.resultado = \'perdido\' ' + selectClausule +'  )'), 'partidasPerdidas'],
-            [Sequelize.literal('averageGanadas(\`User\`.\`id\`, \'' + tipo +'\')'), 'average']
+            [Sequelize.literal('averageGanadas(\`User\`.\`id\`, \'' + 'torneo' +'\')'), 'average']
         ],
         having: [
             Sequelize.where(Sequelize.literal("partidasJugadas"), { [Op.gt]: 0 })

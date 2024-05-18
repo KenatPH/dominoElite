@@ -16,6 +16,15 @@ class AtletasTorneos extends Model {
     @ForeignKey(() => User)
     @Column
     declare userId: String;
+
+    @Column({
+        type: DataType.BOOLEAN,
+        allowNull: false,
+        defaultValue: 0
+    })
+    declare asistente: boolean
+
+    
 }
 
 export default AtletasTorneos

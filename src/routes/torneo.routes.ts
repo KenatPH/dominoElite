@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { create, update, addAtletas, getTorneo, getListTorneo, generarPartidasTorneo } from "../controllers/torneo.controller";
+import { create, update, addAtletas, getTorneo, getListTorneo, generarPartidasTorneo, generarRondaTorneo } from "../controllers/torneo.controller";
 
 const router = Router();
 
@@ -183,5 +183,8 @@ router.post('/addAtletas/:id', addAtletas);
  *        description: Error inesperado
  */
 router.post('/generarPartidasTorneo/:id', generarPartidasTorneo);
+
+
+router.post('/generarRondaTorneo/:id', generarRondaTorneo);
 
 export default router;
