@@ -371,12 +371,12 @@ export const generarRondaTorneo = async (req: Request, res: Response): Promise<R
 
 
 
-     let e = new emparejamiento(id)
+    let e = new emparejamiento(id)
 
 
     return res.status(201).json(
         {
-            data_send: users,
+            data_send: "",
             num_status: 0,
             msg_status: 'Torneo Actualizado correctamente.'
         }
