@@ -9,6 +9,7 @@ import { Op } from "sequelize";
 import { io } from "socket.io-client";
 import config from "../config/config";
 import ColaNotificaciones from "../models/colaNotificaciones.model";
+import Puntuacion from "../models/puntuacion.model";
 
 
 export const getListPartida = async (req: Request, res: Response): Promise<Response> => {
@@ -241,7 +242,10 @@ export const resultadoPartida = async (req: Request, res: Response): Promise<Res
     }
 
     const partida = await Partida.findOne({
-        where: { id: partidaId }
+        where: { id: partidaId, estatus:'activo' },
+        include: [
+            { model: User, as: 'jugadores', attributes: ['id', 'nombre'] }
+        ]
     })
 
     if (!partida) {
@@ -252,44 +256,72 @@ export const resultadoPartida = async (req: Request, res: Response): Promise<Res
         });
     }
 
+    
     // valida si los ganadores estan jugando en esta partida
     const ganador1BD = await JugadorPartida.findOne({ where: { userId: ganador1, partidaId: partidaId }})
+
     if (!ganador1BD) {
+
         return res.status(404).json({
             data_send: "",
             num_status: 6,
             msg_status: 'jugador asignado como ganador1 no existe en esta partida'
         });
+
     }else{
+
         ganador1BD.resultado = 'ganado'
         await ganador1BD.save()
+
         const u2 =  await User.findOne({ where: { id: ganador1 }})
+
+        if (partida.tipo ==='torneo'){
+            guardarpuntaje(ganador1, "ganador")
+        }
+
         await ColaNotificaciones.create({ tipo: 'ganadorPartida', userId: ganador1, contexto: JSON.stringify({ email: u2?.email, telefono:u2?.telefono })})
     }
     // valida si tiene un segundo ganador
     if (ganador2){
+
         const ganador2BD = await JugadorPartida.findOne({ where: { userId: ganador1, partidaId: partidaId } })
         if (!ganador2BD) {
+
             return res.status(404).json({
                 data_send: "",
                 num_status: 6,
                 msg_status: 'jugador asignado como ganador2 no existe en esta partida'
             });
+
         }else{
+
             ganador2BD.resultado = 'ganado'
             ganador2BD.save()
-            const u1 = await User.findOne({ where: { id: ganador1 } })
-            await ColaNotificaciones.create({ tipo: 'ganadorPartida', userId: ganador1, contexto: JSON.stringify({ email: u1?.email, telefono: u1?.telefono }) })
+
+            const u1 = await User.findOne({ where: { id: ganador2 } })
+
+            if (partida.tipo === 'torneo') {
+                guardarpuntaje(ganador2, "ganador")
+            }
+
+            await ColaNotificaciones.create({ tipo: 'ganadorPartida', userId: ganador2, contexto: JSON.stringify({ email: u1?.email, telefono: u1?.telefono }) })
         }
     }
-    // notificaciones para perdedore4s
+
+    const jugadores = partida.jugadores.map((j) => { return j.id })
+
+    // notificaciones para perdedores
     const perdedores = await User.findAll({
         where:{
-            id: { [Op.notIn]: [ganador1, ganador2] }
+            id: { [Op.notIn]: [ganador1, ganador2], [Op.in]: jugadores  },
+            
         }
     })
 
     perdedores.forEach(async(user) => {
+        if (partida.tipo === 'torneo') {
+            guardarpuntaje(ganador1)
+        }
         await ColaNotificaciones.create({ tipo: 'perdedorPartida', userId: user.id, contexto: JSON.stringify({ email: user?.email, telefono: user?.telefono }) })
     });
 
@@ -413,3 +445,35 @@ export const iniciarPartida = async (req: Request, res: Response): Promise<Respo
 }
 
 
+async function guardarpuntaje(usuario:any, tipo:string='') {
+    const puntuacion = await Puntuacion.findOne({
+        where: { id: usuario }
+    });
+    
+
+    if (puntuacion) {
+        if(tipo==='ganador'){
+            puntuacion.jugados = puntuacion.jugados++
+            puntuacion.ganados = puntuacion.ganados++
+            puntuacion.save()
+        }else{
+            puntuacion.jugados = puntuacion.jugados++
+            puntuacion.perdidos = puntuacion.perdidos++
+            puntuacion.save()
+        }
+    } else {
+        if (tipo === 'ganador') {
+            await Puntuacion.create({
+                id: usuario,
+                ganados: 1,
+                jugados: 1
+            })
+        }else{
+            await Puntuacion.create({
+                id: usuario,
+                perdidos: 1,
+                jugados: 1
+            })
+        }
+    }
+}

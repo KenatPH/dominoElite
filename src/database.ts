@@ -10,6 +10,7 @@ import Partida from './models/partida.model';
 import JugadorPartida from './models/jugadorPartida.model';
 import SubscripcionesPush from './models/subscripcionesPush.model';
 import ColaNotificaciones from './models/colaNotificaciones.model';
+import puntuacion from './models/puntuacion.model';
 
 export const connectDB = async () => {
    try {
@@ -32,7 +33,8 @@ export const connectDB = async () => {
             Partida,
             JugadorPartida,
             SubscripcionesPush,
-            ColaNotificaciones
+            ColaNotificaciones,
+            puntuacion
          ]);
       
    } catch (error) {
