@@ -530,7 +530,7 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
     
         return res.status(201).json(
             {
-                data_send: atletas,
+                data_send: partidas,
                 num_status: 0,
                 msg_status: 'Torneo Actualizado correctamente.'
             }
