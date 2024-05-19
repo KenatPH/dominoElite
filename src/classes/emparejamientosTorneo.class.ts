@@ -7,6 +7,14 @@ import JugadorPartida from "../models/jugadorPartida.model";
 import ColaNotificaciones from "../models/colaNotificaciones.model";
 
 
+class handleError extends Error {
+    constructor(mensaje: string) {
+        super(mensaje);
+        this.name = "Error " + mensaje;
+    }
+}
+
+
 
 export class emparejamiento{
 
@@ -92,24 +100,35 @@ export class emparejamiento{
 
     jugadores: User[] = []
     partidasjugadas: any[] = []
+    partidasActivas: any[] = []
     torneoId:string=''
     torneo:any
     partidascreadas: any = []
     mesasIndex = 0
     constructor(torneoId:string){
-        // this.generarGrupos()
-        //await this.obtenerUsuarios(torneoId)
+
         this.torneoId = torneoId
     }
 
     async init(){
         await this.obtenerTorneo()
         await this.obtenerUsuarios(this.torneoId)
-        await this.obtenerPartidas(this.torneoId)
-        await this.generarGrupos()
+
+        if(this.jugadores.length > 8){
+            await this.obtenerPartidas(this.torneoId)
+
+            if(this.partidasActivas.length>0){
+                throw new handleError("este torneo tiene partidas sin finalizar");
+            }
+            await this.generarGrupos()
+        }else{
+            throw new handleError("el minimo para un torneo son 8 jugadores");
+            
+        }
         // console.log(this.partidasjugadas);
         
     }
+
     async obtenerTorneo(){
         this.torneo = await Torneo.findOne({ where: { id: this.torneoId } })
     }
@@ -131,10 +150,20 @@ export class emparejamiento{
             having: [
                 Sequelize.where(Sequelize.literal("partidasJugadas"), { [Op.gt]: 0 })
             ]
-        }) 
+        })
+        
+        
     }
 
     async obtenerPartidas(id: string){
+        this.partidasActivas = await Partida.findAll({
+            where: { torneoId: id, estatus:'activo' },
+            attributes: ["id"],
+            include: [
+                { model: User, as: 'jugadores', attributes: ['id'] }
+            ]
+        })
+
         this.partidasjugadas = await Partida.findAll({
             where: { torneoId: id },
             attributes: ["id"],
@@ -144,187 +173,186 @@ export class emparejamiento{
         })
     }
 
-    generarSubGrupos( jugadores: string[],jugadoresFlotantes: any[],){
-        let S1: string[] = [];
-        let S2: string[] = [];
+    generarSubGrupos(jugadores: User[],jugadoresFlotantes: any[],){
+        let S1: User[] = [];
+        let S2: User[] = [];
 
         // M0 es el número de JJDD que vienen del grupo anterior. 
-        const NumeroJugGrupAntertior = jugadoresFlotantes.length
 
         // M1 es el valor máximo de JJDD que se pueden emparejar en el grupo 
         // si NumeroJugGrupAntertior es mayor que el número de jugadores residentes, M1 es cómo máximo igual al número de jugadores residentes.
-        // const JJDDporEmparejar = (NumeroJugGrupAntertior > jugadores.length) ? jugadores.length : Math.floor((jugadoresFlotantes.length + jugadores.length) / 2) 
-        const JJDDporEmparejar =  Math.floor((jugadoresFlotantes.length + jugadores.length) / 4) 
 
         // numero maximo de parejas en este grupo
         // si NumeroJugGrupAntertior es mayor que el número de jugadores residentes, MaxPairs será como máximo igual al número de jugadores residentes.
-        const MaxPairs = (NumeroJugGrupAntertior > jugadores.length) ? NumeroJugGrupAntertior / 4 : Math.floor( jugadores.length / 4)
 
         // Un grupo (de emparejamiento) es homogéneo si todos los jugadores tienen la misma puntuación; en caso contrario es heterogéneo.
-        const tipoGrupo = (jugadoresFlotantes.length > 0)? 'heterogéneo':'homogéneo'
 
-        const maximoPartidas = (tipoGrupo === 'heterogéneo')? JJDDporEmparejar:MaxPairs
+        const maximoPartidas = Math.floor((jugadoresFlotantes.length + jugadores.length) / 4)
 
-        // console.log("partidas", maximoPartidas, "MaxPairs", MaxPairs, 'jugadores.length', jugadores.length);
-            
+        console.log("partidas", maximoPartidas,  'jugadores.length', jugadoresFlotantes.length + jugadores.length);
 
-        if (tipoGrupo === 'homogéneo') {
-            if (S2.length > S1.length) {
-                jugadoresFlotantes = S2.splice(-1, 1);
-                jugadoresFlotantes = jugadoresFlotantes.map((j:any) => { return {flotante:true ,j} });
-            }
-        }else{
-            
-            jugadores = jugadoresFlotantes.concat(jugadores)
 
-            if (S2.length > S1.length) {
-                jugadoresFlotantes = S2.splice(-1, 1);
-            }
-        }
+        jugadores = jugadoresFlotantes.concat(jugadores)
         
         S1 = jugadores.slice(0, Math.floor(jugadores.length / 2));
         S2 = jugadores.slice(Math.floor(jugadores.length / 2) );
-
+              
+        
+        console.log("s2 tiene "+S2.length," registros");
+        console.log("s1 tiene " + S1.length, " registros");
+        
         return { S1, S2 , maximoPartidas};
     }
 
-   async preparacionDeCandidatos(S1: any[], S2: any[], maximoPartidas:number ){
+    async preparacionDeCandidatos(S1: User[], S2: User[], maximoPartidas:number ){
         const candidatos: any[] = [];
-        let flotantes:any[]=[]
-        // validar que no hayan jugado antes
+        let flotantes: User[]=[]
         let transposicion = false
-       const permutaciones = this.calcularPermutaciones(S2) + this.calcularPermutaciones(S1)
+        const permutaciones = this.calcularPermutaciones(S2) + this.calcularPermutaciones(S1)
         let transposicionesRealizadas = 0
         console.log("permutaciones", permutaciones);
-        
-        let index = 0
-        do {
 
-            if(transposicion){
-                // console.log("permuto");
-                let esFlotante = false
-                do {
+        if(S1.length+S2.length < 4){
+            console.log("todos los jugadores son flotantes");
+            S2.forEach((e:User) => {
+                flotantes.push(e)
+            });
 
-                    // Obtener índices aleatorios para los jugadores
-                    const indiceJugador1 = Math.floor(Math.random() * S1.length);
-                    const indiceJugador2 = Math.floor(Math.random() * S2.length);
-                    
-                    const jugador1 = S1[indiceJugador1];
-                    const jugador2 = S2[indiceJugador2];
+            S1.forEach((e: User) => {
+                flotantes.push(e)
+            });
+            
+        }else{
 
-                    if (jugador1.flotante){
-                        esFlotante = true
-                    }else{
+            let index = 0
+            do {
+    
+                if(transposicion){
+                    // console.log("permuto");
+                    let esFlotante = false
+                    do {
+    
+                        // Obtener índices aleatorios para los jugadores
+                        const indiceJugador1 = Math.floor(Math.random() * S1.length);
+                        const indiceJugador2 = Math.floor(Math.random() * S2.length);
+                        
+                        const jugador1:any = S1[indiceJugador1];
+                        const jugador2:any = S2[indiceJugador2];
+    
+
                         S1[indiceJugador1] = jugador2;
                         S2[indiceJugador2] = jugador1;
+    
+                        
+                    } while (esFlotante);
+                  
+                    // Intercambiar los jugadores
+                    transposicion = false
+                    transposicionesRealizadas++
+                    
+                }
 
-                        console.log(`cambio ${JSON.stringify(jugador1.nombre)} por ${JSON.stringify(jugador2.nombre)}`);
+                for (index; index < maximoPartidas+1; index++) {
+                    
+        
+                    const prospectoMesa:any= []
+    
+                    let jugador1:any, jugador2: any, jugador3: any, jugador4 :any
+                        
+                    if (S1.length > 0) {
+                        jugador1 = S1[0];
+                        prospectoMesa.push(jugador1)
+                    } 
+                    if (S2.length > 0) {
+                        jugador2 = S2[0];
+                        prospectoMesa.push(jugador2)
+                    }
+                    if (S1.length > 1) {
+                        jugador3 = S1[1];
+                        prospectoMesa.push(jugador3)
+                    }
+                    if (S2.length > 1) {
+                        jugador4 = S2[1];
+                        prospectoMesa.push(jugador4)
+                    } 
+    
+                    // console.log(jugador1, jugador2, jugador3, jugador4);
+                    
+                    
+                    if (prospectoMesa.length === 4) {
+    
+                        const prop = prospectoMesa.map( (j:any)=>{return j.id} )
+                        
+                        let hanJugado = await  this.hanJugadoAnteriormente(prop, this.partidasjugadas) 
+        
+        
+                        if (hanJugado && transposicionesRealizadas<permutaciones){    
+                            // console.log("mesa no permitida");
+    
+                            transposicion = true
+                            break;
+                        }
+    
+                        if (S1.length > 0) {
+                            S1.shift();
+                        }
+                        if (S2.length > 0) {
+                            S2.shift();
+                        }
+                        if (S1.length > 0) {
+                           S1.shift();
+                        }
+                        if (S2.length > 0) {
+                           S2.shift();
+                        } 
+                        // console.log(prop);
+                        
+                        candidatos.push(prospectoMesa);
+    
+                    }else{
+                        console.log("No crea la mesa");
+                        // if (jugador1) flotantes.push({...jugador1, flotantes:true})
+                        // if (jugador2) flotantes.push({ ...jugador2, flotantes: true })
+                        // if (jugador3) flotantes.push({ ...jugador3, flotantes: true })
+                        // if (jugador4) flotantes.push({ ...jugador4, flotantes: true })
+
+                        if (jugador1) flotantes.push(jugador1)
+                        if (jugador2) flotantes.push(jugador2)
+                        if (jugador3) flotantes.push(jugador3)
+                        if (jugador4) flotantes.push(jugador4)
                         
                     }
-
-                    
-                } while (esFlotante);
-              
-                // Intercambiar los jugadores
-                transposicion = false
-                transposicionesRealizadas++
-                
-            }
-            for (index; index < maximoPartidas+1; index++) {
-                
     
-                const prospectoMesa:any= []
-
-                let jugador1:any, jugador2: any, jugador3: any, jugador4 :any
-                    
-                if (S1.length > 0) {
-                    jugador1 = S1[0];
-                    prospectoMesa.push(jugador1)
-                } 
-                if (S2.length > 0) {
-                    jugador2 = S2[0];
-                    prospectoMesa.push(jugador2)
-                }
-                if (S1.length > 1) {
-                    jugador3 = S1[1];
-                    prospectoMesa.push(jugador3)
-                }
-                if (S2.length > 1) {
-                    jugador4 = S2[1];
-                    prospectoMesa.push(jugador4)
-                } 
-
-                // console.log(jugador1, jugador2, jugador3, jugador4);
-                
-                
-                if (prospectoMesa.length === 4) {
-
-                    const prop = prospectoMesa.map( (j:any)=>{return j.id} )
-                    
-                    let hanJugado = await  this.hanJugadoAnteriormente(prop, this.partidasjugadas) 
-    
-    
-                    if (hanJugado){    
-                        // console.log("no permitida");
-
-                        transposicion = true
-                        break;
-                    }
-
-                    if (S1.length > 0) {
-                        S1.shift();
-                    }
-                    if (S2.length > 0) {
-                        S2.shift();
-                    }
-                    if (S1.length > 0) {
-                       S1.shift();
-                    }
-                    if (S2.length > 0) {
-                       S2.shift();
-                    } 
-
-                    candidatos.push(prospectoMesa);
-
-                }else{
-                    console.log("No crea la mesa");
-                    if (jugador1) flotantes.push({...jugador1, flotantes:true})
-                    if (jugador2) flotantes.push({ ...jugador2, flotantes: true })
-                    if (jugador3) flotantes.push({ ...jugador3, flotantes: true })
-                    if (jugador4) flotantes.push({ ...jugador4, flotantes: true })
-                    
-                }
-
-    
-            }
-
-            
-            
-            // console.log(index);
-            if (index + 1 === maximoPartidas){
-                break
-            }
-            
-        } while (transposicion && transposicionesRealizadas < permutaciones );
-
-       console.log("permuto :",transposicionesRealizadas," veces ");
-       console.log("mesas :", candidatos.length );
-       console.log("flotantes :", flotantes.length);
         
-        if(S1.length > 0){
-            flotantes.concat(S1)
-
+                }//end for
+    
+                
+                if (candidatos.length === maximoPartidas){
+                    break
+                }
+            // se repite si requiere transposicion y no a cumplido sus transposiciones maximas
+            } while (transposicion && transposicionesRealizadas < permutaciones );
+    
+           console.log("permuto :",transposicionesRealizadas," veces ");
+           console.log("mesas :", candidatos.length );
+           console.log("flotantes :", flotantes.length);
+            
+            if(S1.length > 0){
+                flotantes.concat(S1)
+    
+            }
+            if (S2.length > 0) {
+                flotantes.concat(S2)
+    
+            }
         }
-        if (S2.length > 0) {
-            flotantes.concat(S2)
-
-        }
+        
 
         return {candidatos, flotantes};
     }
 
     crearPartidas(candidatos:any){
-        // console.log(candidatos.length);
+        console.log("partidas posibles ",candidatos.lenth);
 
         candidatos.forEach(async(usuarios:any, index:number) => {
             this.mesasIndex++
@@ -335,20 +363,20 @@ export class emparejamiento{
                 mesa: this.mesasIndex
             });
 
-            await partida.save()
+            // await partida.save()
 
             // arreglos para hacer bulkCreate
             const toCreatePartida = usuarios.map((u: any) => { return { partidaId: partida.id, userId: u.id, mesa: this.mesasIndex } })
             // console.log(toCreatePartida);
             const toColaNotificacion = usuarios.map((u: any) => { return { tipo: 'mesaEnTorneo', userId: u.id, contexto: JSON.stringify({ mesa: this.mesasIndex, email: u?.email, telefono: u?.telefono }) } })
             
-            // console.log(toCreatePartida);
+            // console.log(toColaNotificacion);
 
             // crea todas las relaciones con la partida en BD
             await JugadorPartida.bulkCreate(toCreatePartida)
 
             // envia las notificaciones
-            // await ColaNotificaciones.bulkCreate(toColaNotificacion)
+            await ColaNotificaciones.bulkCreate(toColaNotificacion)
             this.partidascreadas.push(partida)
             
         });
@@ -357,18 +385,21 @@ export class emparejamiento{
         
     }
 
-
-
-   async generarGrupos(){
-       
+    async generarGrupos(){
+        this.mesasIndex = 0
         let jugadoresFlotantes:any = []
-        let candiatos:any[] = [] 
+        let candidatos:any[] = [] 
+        let j = 0 
         do {
-         
+            console.log("++++++++++++++++++++++++++++++++++inicia una vuelta+++++++++++++++++++++++++++++++++");
+            if (jugadoresFlotantes.length>0){
+                console.log("jugadores flotantes: " , jugadoresFlotantes.length);
+                // console.log(jugadoresFlotantes);             
+            }
+            
+            j++
             const objetosMaxPuntaje: any = this.obtenerYEliminarMaxPuntaje('average' ) 
-            
-            // console.log(objetosMaxPuntaje);
-            
+
             
             let grupos = this.generarSubGrupos(objetosMaxPuntaje, jugadoresFlotantes);
 
@@ -378,28 +409,43 @@ export class emparejamiento{
             
             jugadoresFlotantes = result.flotantes
 
-            // console.log(JSON.stringify(result));
             
            this.crearPartidas(result.candidatos)  
 
         } while (this.jugadores.length > 0);
 
        if (jugadoresFlotantes.length){
-            console.log("quedaron jugadores");
-            
+           console.log("quedaron jugadores: ", jugadoresFlotantes.length);
+
+            let prospecto:any = []
+
+            jugadoresFlotantes.forEach((j:User) => {
+                
+                prospecto.push(j)
+            });
+
+            candidatos.push(prospecto)
+
+            this.crearPartidas(candidatos)
         }
 
-
+        console.log("partidas creadas en total: ", this.partidascreadas.length);
+        
 
     }
-    
-    
+      
     obtenerYEliminarMaxPuntaje<T>( propiedad: keyof T) {
 
         
         const maxPuntaje = Math.max(...this.jugadores.map((obj: any) => parseFloat(obj.dataValues.average)));
+
+        console.log("puntaje de grupo: ",maxPuntaje);
+        
         
         const objetosMaxPuntaje = this.jugadores.filter((obj: any) => parseFloat(obj.dataValues.average) === maxPuntaje);
+
+        console.log("jugadores en grupo: ", objetosMaxPuntaje.length);
+        
 
         this.jugadores = this.jugadores.filter((obj: any) => parseFloat(obj.dataValues.average) !== maxPuntaje);
 
@@ -417,7 +463,7 @@ export class emparejamiento{
         return permutaciones;
     }
 
-   async hanJugadoAnteriormente(participantes:any, partidasJugadas:any) {
+    async hanJugadoAnteriormente(participantes:any, partidasJugadas:any) {
 
 
         // console.log(participantes);

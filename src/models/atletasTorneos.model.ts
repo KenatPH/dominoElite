@@ -1,4 +1,4 @@
-import { Table, Column, Model, HasMany, PrimaryKey, ForeignKey } from 'sequelize-typescript';
+import { Table, Column, Model, HasMany, PrimaryKey, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import { DataType } from 'sequelize-typescript';
 import User from "./users.model";
 import Torneo from './torneo.model';
@@ -23,6 +23,9 @@ class AtletasTorneos extends Model {
         defaultValue: 0
     })
     declare asistente: boolean
+
+    @BelongsTo(() => User)
+    declare atleta: User;
 
     
 }

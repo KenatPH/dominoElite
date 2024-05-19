@@ -15,7 +15,7 @@ export const saveImage = (OldImageName:String = '', base64Data:String) => {
                 fs.writeFileSync(path, base64Data1, { encoding: 'base64' });
                 let response = { "error": false, "message": "Save image", "image": path }
                 console.log('respuesta imagenes', response);
-
+                res(filename)
             } catch (e) {
                 console.log(e);
             }

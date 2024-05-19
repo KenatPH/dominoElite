@@ -273,6 +273,62 @@ export const addAtletas = async (req: Request, res: Response): Promise<Response>
 
 }
 
+export const addAtletasAsistentes = async (req: Request, res: Response): Promise<Response> => {
+
+    const { id } = req.params;
+    const { atletas } = req.body;
+
+    if (!id || !atletas) {
+
+        return res.status(409).json({
+            data_send: "",
+            num_status: 1,
+            msg_status: 'Los campos id, atletas son obligatorios'
+        })
+    }
+
+    const torneo = await Torneo.findOne({
+        where: { id: id }
+    })
+
+    if (!torneo) {
+        return res.status(404).json({
+            data_send: "",
+            num_status: 6,
+            msg_status: 'torneo no encontrado'
+        });
+    }
+
+
+    try {
+
+
+        const users = await AtletasTorneos.findAll({ where: { id: { [Op.in]: atletas }, } })
+
+        users.forEach(async (user) => {
+
+           user.asistente = true
+           await user.save()
+
+        });
+
+        
+        return res.status(201).json(
+            {
+                data_send: '',
+                num_status: 0,
+                msg_status: 'atletas asistentes marcados con con exito.'
+            }
+        );
+    } catch (error) {
+        return res.status(500).json({
+            message: error
+        });
+    }
+
+
+}
+
 // editarpremios
 
 //TODO eliminar atletas
@@ -291,10 +347,7 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
     }
 
     const torneo = await Torneo.findOne({
-        where: { id: id },
-        include: [
-            { model: User, as: 'atletas', attributes: ['id', 'nombre'] }
-        ]
+        where: { id: id }
     })
 
     if (!torneo) {
@@ -308,11 +361,17 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
 
 
     try {
-        console.log(torneo.atletas);
-        
-        const mesas = agruparEnMesas(torneo.atletas,4)
 
-        console.log(mesas);
+        const atletas = await AtletasTorneos.findAll({
+            where: { torneoId: id, asistente: true }, include: [
+                { model: User,  attributes: ['id', 'nombre', 'email', 'telefono'] }
+            ] } )
+
+        // console.log(atletas);
+        
+        const mesas = agruparEnMesas(atletas,4)
+
+        // console.log(mesas);
         
         
         mesas.forEach(async(users:any,i) => {
@@ -328,14 +387,14 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
     
     
             // arreglos para hacer bulkCreate
-            const toCreatePartida = users.map((u: any) => { return { partidaId: partida.id, userId: u.id, mesa: i } })
+            const toCreatePartida = users.map((u: any) => { return { partidaId: partida.id, userId: u.atleta.id, mesa: i } })
     
-            const toColaNotificacion = users.map((u: any) => { return { tipo: 'mesaEnTorneo', userId: u.id, contexto: JSON.stringify({ mesa: i, email: u?.email, telefono: u?.telefono }) } })
+            const toColaNotificacion = users.map((u: any) => { return { tipo: 'mesaEnTorneo', userId: u.atleta.id, contexto: JSON.stringify({ mesa: i, email: u?.email, telefono: u?.telefono }) } })
     
             // crea todas las relaciones con la partida en BD
             await JugadorPartida.bulkCreate(toCreatePartida)
-    
-            // envia las notificaciones
+            
+            // // envia las notificaciones
             await ColaNotificaciones.bulkCreate(toColaNotificacion)
     
     
@@ -351,7 +410,7 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
     
         return res.status(201).json(
             {
-                data_send: partidas,
+                data_send: atletas,
                 num_status: 0,
                 msg_status: 'Torneo Actualizado correctamente.'
             }
@@ -372,19 +431,29 @@ export const generarRondaTorneo = async (req: Request, res: Response): Promise<R
 
     const { id } = req.params;
 
+    try {
+        
+        let e = new emparejamiento(id)
+        await e.init()
+        
+        
+        return res.status(201).json(
+            {
+                data_send: e.partidascreadas,
+                num_status: 0,
+                msg_status: 'Torneo Actualizado correctamente.'
+            }
+        );
+    } catch (error) {
+        return res.status(500).json(
+            {
+                data_send: error,
+                num_status: 0,
+                msg_status: 'error inesperado'
+            }
+        );
+    }
 
-
-    let e = new emparejamiento(id)
-    await e.init()
-
-
-    return res.status(201).json(
-        {
-            data_send: e.partidascreadas,
-            num_status: 0,
-            msg_status: 'Torneo Actualizado correctamente.'
-        }
-    );
 
 }
 

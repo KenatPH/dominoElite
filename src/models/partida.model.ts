@@ -92,6 +92,28 @@ class Partida extends Model {
     })
     declare ganador2: String;
 
+    @Column({
+        type: DataType.STRING
+    })
+    declare nombreEquipo1: String;
+
+    @Column({
+        type: DataType.STRING
+    })
+    declare nombreEquipo2: String;
+
+    @Column({
+        type: DataType.STRING
+    })
+    declare firma1: String;
+
+    @Column({
+        type: DataType.STRING
+    })
+    declare firma2: String;
+
+
+
     @BelongsTo(() => User, "ganador2")
     declare ganador2Info: User;
 

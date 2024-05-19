@@ -230,7 +230,7 @@ export const asignaJugadorAPartida = async (req: Request, res: Response): Promis
 
 export const resultadoPartida = async (req: Request, res: Response): Promise<Response> => {
 
-    const { partidaId, ganador1, ganador2, puntajes } = req.body;
+    const { partidaId, ganador1, ganador2, puntajes, firma1,firma2 } = req.body;
 
     if (!partidaId || !ganador1) {
 
