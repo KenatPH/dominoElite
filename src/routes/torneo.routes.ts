@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { create, update, addAtletas, getTorneo, getListTorneo, generarPartidasTorneo, generarRondaTorneo } from "../controllers/torneo.controller";
+import { create, update, addAtletas, getTorneo, getListTorneo, generarPartidasTorneo, generarRondaTorneo, iniciarTorneo } from "../controllers/torneo.controller";
 
 const router = Router();
 
@@ -237,5 +237,32 @@ router.post('/generarPartidasTorneo/:id', generarPartidasTorneo);
  *        description: Error inesperado
  */
 router.post('/generarRondaTorneo/:id', generarRondaTorneo);
+
+/**
+ * @swagger
+ * /api/partida/get/{id}:
+ *  get:
+ *    summary: inicia torneo por id y arranca el contador en el websocket
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        type: string
+ *        minimum: 1
+ *        description: uuid del torneo
+ *    tags:
+ *      - Torneo
+ *    produces:
+ *      - application/json
+ *    responses:
+ *      200:
+ *        description: ok
+ *      400:
+ *        description: torneo no encontrado
+ *      500:
+ *        description: Error inesperado
+ * 
+ */
+router.get('/iniciarTorneo/:id', iniciarTorneo);
 
 export default router;
