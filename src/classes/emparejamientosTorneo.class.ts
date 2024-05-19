@@ -99,6 +99,7 @@ export class emparejamiento{
     // ]
 
     jugadores: User[] = []
+    partidasActivas:any=[]
     partidasjugadas: any[] = []
     torneoId:string=''
     torneo:any

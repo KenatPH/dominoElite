@@ -91,7 +91,7 @@ class Partida extends Model {
         type: DataType.STRING
     })
     declare ganador2: String;
-
+// TODO falta agregar en BD
     @Column({
         type: DataType.STRING
     })
