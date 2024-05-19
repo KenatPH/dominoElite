@@ -13,7 +13,11 @@ import { io } from "socket.io-client";
 import config from "../config/config";
 
 export const getListTorneo = async (req: Request, res: Response): Promise<Response> => {
-    const torneos = await Torneo.findAll({where:{ publico: true}})
+    const torneos = await Torneo.findAll({
+        where: { publico: true }, order: [
+            ['updatedAt', 'ASC'],
+        ],
+})
     try {
 
         return res.status(201).json(torneos);
@@ -336,10 +340,7 @@ export const iniciarTorneo = async (req: Request, res: Response): Promise<Respon
     const { id } = req.params;
 
     const torneo = await Torneo.findOne({
-        where: { id: id },
-        order: [
-            ['updatedAt', 'ASC'],
-        ],
+        where: { id: id }
     })
 
     if (!torneo) {
@@ -366,12 +367,87 @@ export const iniciarTorneo = async (req: Request, res: Response): Promise<Respon
 
     return res.status(201).json(
         {
-            data_send: "Partida Iniciada",
+            data_send: "torneo Iniciado",
             num_status: 0,
             msg_status: 'Exito.'
         });
 }
 
+export const pausarTorneo = async (req: Request, res: Response): Promise<Response> => {
+
+    const { id } = req.params;
+
+    const torneo = await Torneo.findOne({
+        where: { id: id }
+    })
+
+    if (!torneo) {
+        return res.status(404).json({
+            data_send: "",
+            num_status: 6,
+            msg_status: 'partida no Encontrada'
+        });
+    }
+    try {
+        let data = { gameId: id, action: "pauseGame", time: torneo.duracionSegundos }; // ID de la partida a la que te quieres unir
+
+        const urlSocket = config.WS.HOST + ':' + config.WS.PORT
+
+        var socket = io(urlSocket);
+
+        socket.emit('joinGame', data);
+
+    } catch (error) {
+        console.log(error);
+
+    }
+
+
+    return res.status(201).json(
+        {
+            data_send: "torneo pausado",
+            num_status: 0,
+            msg_status: 'Exito.'
+        });
+}
+
+export const reanudarTorneo = async (req: Request, res: Response): Promise<Response> => {
+
+    const { id } = req.params;
+
+    const torneo = await Torneo.findOne({
+        where: { id: id }
+    })
+
+    if (!torneo) {
+        return res.status(404).json({
+            data_send: "",
+            num_status: 6,
+            msg_status: 'partida no Encontrada'
+        });
+    }
+    try {
+        let data = { gameId: id, action: "resumeGame" }; // ID de la partida a la que te quieres unir
+
+        const urlSocket = config.WS.HOST + ':' + config.WS.PORT
+
+        var socket = io(urlSocket);
+
+        socket.emit('joinGame', data);
+
+    } catch (error) {
+        console.log(error);
+
+    }
+
+
+    return res.status(201).json(
+        {
+            data_send: "torneo continua",
+            num_status: 0,
+            msg_status: 'Exito.'
+        });
+}
 
 // editarpremios
 

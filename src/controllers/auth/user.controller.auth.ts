@@ -111,7 +111,7 @@ export const login = async (req: Request, res: Response) => {
       const token = getToken({ email, id: user.id, nombre: user.nombre, perfil: user.perfil});
     
       return res.status(200).json({
-        data_send: {token, nombre: user.nombre, telefono: user.telefono, perfil: user.perfil},
+        data_send: {token, nombre: user.nombre, telefono: user.telefono, perfil: user.perfil, id:user.id},
         num_status:0,
         msg_status: 'Login successfully'
       })
