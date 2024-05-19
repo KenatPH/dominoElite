@@ -100,35 +100,24 @@ export class emparejamiento{
 
     jugadores: User[] = []
     partidasjugadas: any[] = []
-    partidasActivas: any[] = []
     torneoId:string=''
     torneo:any
     partidascreadas: any = []
     mesasIndex = 0
     constructor(torneoId:string){
-
+        // this.generarGrupos()
+        //await this.obtenerUsuarios(torneoId)
         this.torneoId = torneoId
     }
 
     async init(){
         await this.obtenerTorneo()
         await this.obtenerUsuarios(this.torneoId)
-
-        if(this.jugadores.length > 8){
-            await this.obtenerPartidas(this.torneoId)
-
-            if(this.partidasActivas.length>0){
-                throw new handleError("este torneo tiene partidas sin finalizar");
-            }
-            await this.generarGrupos()
-        }else{
-            throw new handleError("el minimo para un torneo son 8 jugadores");
-            
-        }
+        await this.obtenerPartidas(this.torneoId)
+        await this.generarGrupos()
         // console.log(this.partidasjugadas);
         
     }
-
     async obtenerTorneo(){
         this.torneo = await Torneo.findOne({ where: { id: this.torneoId } })
     }
