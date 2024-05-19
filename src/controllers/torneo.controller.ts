@@ -478,7 +478,22 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
         });
     }
 
+    const partidasActivas =  await Partida.findAll({
+        where: { torneoId: id, estatus: 'activo' },
+        attributes: ["id"],
+        include: [
+            { model: User, as: 'jugadores', attributes: ['id'] }
+        ]
+    })
 
+
+    if (partidasActivas.length > 0) {
+        return res.status(404).json({
+            data_send: "",
+            num_status: 6,
+            msg_status: 'torneo ya tiene partidas activas'
+        });
+    }
 
     try {
 
