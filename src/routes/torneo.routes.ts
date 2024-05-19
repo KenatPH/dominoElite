@@ -150,6 +150,42 @@ router.post('/addAtletas/:id', addAtletas);
 
 /**
  * @swagger
+ * /api/torneo/addAtletasAsistentes/{id}:
+ *  post:
+ *    summary: marca como asistentes atletas de un  torneo
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        type: string
+ *        minimum: 1
+ *        description: uuid del torneo
+ *    tags:
+ *      - Torneo
+ *    requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/addAtletaTorneo'
+ *          text/plain:
+ *            schema:
+ *              type: string
+ * 
+ *    responses:
+ *      200:
+ *        description: atletas agregados con con exito
+ *      404:
+ *        description: arbitro no encontrado  / torneo no encontrado
+ *      409:
+ *        description: Los campos id, atletas son obligatorios
+ *      500:
+ *        description: Error inesperado
+ */
+router.post('/addAtletasAsistentes/:id', addAtletas);
+
+/**
+ * @swagger
  * /api/torneo/generarPartidasTorneo/{id}:
  *  post:
  *    summary: genera partidas de un  torneo
