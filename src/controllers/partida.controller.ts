@@ -69,7 +69,7 @@ export const getpartidaActivaPorUsuario = async (req: Request, res: Response): P
 
     const partidas = await JugadorPartida.findAll({
         where: { userId: userId },
-        include: [{ model: Partida, as: 'partida', attributes: ["id", "sistema", "tipo"], where: { estatus:'activo' }  }]
+        include: [{ model: Partida, as: 'partida', where: { estatus:'activo' }  }]
     })
    
     try {
@@ -90,7 +90,7 @@ export const getpartidaActivaPorUsuario = async (req: Request, res: Response): P
 
 export const create = async (req: Request, res: Response): Promise<Response> => {
 
-    const { sistema,  tipo, torneo, jugadores, minutos, segundos  } = req.body;
+    const { sistema,  tipo, torneo, jugadores, minutos, segundos, puntos } = req.body;
 
     if (  !jugadores || !sistema ) {
 
@@ -124,7 +124,12 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
 
 
             const partida = new Partida({
-                sistema, cantidadJugadores: jugadores.length, duracionSegundos,  tipo, torneo: (torneo && torneo.id) ? torneo.id:null
+                sistema,
+                cantidadJugadores: jugadores.length,
+                duracionSegundos,
+                tipo,
+                torneo: (torneo && torneo.id) ? torneo.id:null,
+                puntos:puntos
             });
 
             partida.save()
