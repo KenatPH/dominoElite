@@ -162,15 +162,6 @@ router.post('/addAtletas/:id', addAtletas);
  *        description: uuid del torneo
  *    tags:
  *      - Torneo
- *    requestBody:
- *        required: true
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/generarPartidasTorneo'
- *          text/plain:
- *            schema:
- *              type: string
  * 
  *    responses:
  *      200:
@@ -184,7 +175,31 @@ router.post('/addAtletas/:id', addAtletas);
  */
 router.post('/generarPartidasTorneo/:id', generarPartidasTorneo);
 
-
+/**
+ * @swagger
+ * /api/torneo/generarRondaTorneo/{id}:
+ *  post:
+ *    summary: genera partidas de un  torneo
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        type: string
+ *        minimum: 1
+ *        description: uuid del torneo
+ *    tags:
+ *      - Torneo
+ * 
+ *    responses:
+ *      200:
+ *        description: atletas agregados con con exito
+ *      404:
+ *        description: arbitro no encontrado  / torneo no encontrado
+ *      409:
+ *        description: Los campos id, atletas son obligatorios
+ *      500:
+ *        description: Error inesperado
+ */
 router.post('/generarRondaTorneo/:id', generarRondaTorneo);
 
 export default router;
