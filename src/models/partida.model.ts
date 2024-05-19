@@ -112,6 +112,19 @@ class Partida extends Model {
     })
     declare firma2: String;
 
+    @Column({
+        type: DataType.INTEGER,
+        defaultValue: 100
+    })
+    declare puntajeGanador: number
+
+    @Column({
+        type: DataType.INTEGER,
+        defaultValue: 100
+    })
+    declare puntajePerdedor: number
+    
+
 
 
     @BelongsTo(() => User, "ganador2")

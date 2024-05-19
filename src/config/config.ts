@@ -13,7 +13,7 @@ export default {
       PASW: production? process.env.MYSQL_PASS : 'root'
    },
    WS:{
-      HOST: production? process.env.SOCKETHOST : 'localhost',
+      HOST: production ? process.env.SOCKETHOST : 'http://174.138.68.136',//'http://localhost',
       PORT: production? process.env.SOCKETPORT : 3000,
    },
    MAIL: {

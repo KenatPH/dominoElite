@@ -235,9 +235,9 @@ export const asignaJugadorAPartida = async (req: Request, res: Response): Promis
 
 export const resultadoPartida = async (req: Request, res: Response): Promise<Response> => {
 
-    const { partidaId, ganador1, ganador2, puntajes, firma1,firma2 } = req.body;
+    const { partidaId, ganador1, ganador2, puntajes, firma1,firma2, puntajeGanador, puntajePerdedor } = req.body;
 
-    if (!partidaId || !ganador1) {
+    if (!partidaId || !ganador1 || !puntajeGanador || !puntajePerdedor) {
 
         return res.status(409).json({
             data_send: "",
@@ -261,6 +261,8 @@ export const resultadoPartida = async (req: Request, res: Response): Promise<Res
         });
     }
 
+    partida.puntajeGanador = puntajeGanador
+    partida.puntajePerdedor = puntajePerdedor
     
     // valida si los ganadores estan jugando en esta partida
     const ganador1BD = await JugadorPartida.findOne({ where: { userId: ganador1, partidaId: partidaId }})

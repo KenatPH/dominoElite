@@ -9,6 +9,8 @@ import Club from "../models/club.model";
 import ColaNotificaciones from "../models/colaNotificaciones.model";
 import { Op, Sequelize, where } from "sequelize";
 import { emparejamiento } from "../classes/emparejamientosTorneo.class";
+import { io } from "socket.io-client";
+import config from "../config/config";
 
 export const getListTorneo = async (req: Request, res: Response): Promise<Response> => {
     const torneos = await Torneo.findAll({where:{ publico: true}})
@@ -328,6 +330,48 @@ export const addAtletasAsistentes = async (req: Request, res: Response): Promise
 
 
 }
+
+export const iniciarTorneo = async (req: Request, res: Response): Promise<Response> => {
+
+    const { id } = req.params;
+
+    const torneo = await Torneo.findOne({
+        where: { id: id },
+        order: [
+            ['updatedAt', 'ASC'],
+        ],
+    })
+
+    if (!torneo) {
+        return res.status(404).json({
+            data_send: "",
+            num_status: 6,
+            msg_status: 'partida no Encontrada'
+        });
+    }
+    try {
+        let data = { gameId: id, action: "initGame", time: torneo.duracionSegundos }; // ID de la partida a la que te quieres unir
+
+        const urlSocket = config.WS.HOST + ':' + config.WS.PORT
+
+        var socket = io(urlSocket);
+
+        socket.emit('joinGame', data);
+
+    } catch (error) {
+        console.log(error);
+
+    }
+
+
+    return res.status(201).json(
+        {
+            data_send: "Partida Iniciada",
+            num_status: 0,
+            msg_status: 'Exito.'
+        });
+}
+
 
 // editarpremios
 
