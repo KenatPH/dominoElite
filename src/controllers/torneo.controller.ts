@@ -488,7 +488,7 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
 
 
     if (partidasActivas.length > 0) {
-        return res.status(404).json({
+        return res.status(402).json({
             data_send: partidasActivas,
             num_status: 6,
             msg_status: 'torneo ya tiene partidas activas'
@@ -498,7 +498,7 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
     try {
 
         const atletas = await AtletasTorneos.findAll({
-            where: { torneoId: id, /**asistente: true*/ }, include: [
+            where: { torneoId: id, asistente: true }, include: [
                 { model: User,  attributes: ['id', 'nombre', 'email', 'telefono'] }
             ] } )
 
@@ -518,7 +518,7 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
                 mesa: i
             });
     
-            // await partida.save()
+            await partida.save()
     
     
             // arreglos para hacer bulkCreate
@@ -527,10 +527,10 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
             const toColaNotificacion = users.map((u: any) => { return { tipo: 'mesaEnTorneo', userId: u.atleta.id, contexto: JSON.stringify({ mesa: i, email: u?.email, telefono: u?.telefono }) } })
     
             // crea todas las relaciones con la partida en BD
-            // await JugadorPartida.bulkCreate(toCreatePartida)
+            await JugadorPartida.bulkCreate(toCreatePartida)
             
             // // envia las notificaciones
-            // await ColaNotificaciones.bulkCreate(toColaNotificacion)
+            await ColaNotificaciones.bulkCreate(toColaNotificacion)
     
     
         });
