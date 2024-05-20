@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { create, update, addAtletas, getTorneo, getListTorneo, generarPartidasTorneo, generarRondaTorneo, iniciarTorneo, pausarTorneo, reanudarTorneo, addAtletasAsistentes } from "../controllers/torneo.controller";
+import { create, update, addAtletas, getTorneo, getListTorneo, generarPartidasTorneo, generarRondaTorneo, iniciarTorneo, pausarTorneo, reanudarTorneo, addAtletasAsistentes, detenerTorneo } from "../controllers/torneo.controller";
 
 const router = Router();
 
@@ -318,5 +318,33 @@ router.get('/pausarTorneo/:id', pausarTorneo);
  * 
  */
 router.get('/reanudarTorneo/:id', reanudarTorneo);
+
+
+/**
+ * @swagger
+ * /api/torneo/detenerTorneo/{id}:
+ *  get:
+ *    summary: detiene torneo por id y detiene el contador en el websocket
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        type: string
+ *        minimum: 1
+ *        description: uuid del torneo
+ *    tags:
+ *      - Torneo
+ *    produces:
+ *      - application/json
+ *    responses:
+ *      200:
+ *        description: ok
+ *      400:
+ *        description: torneo no encontrado
+ *      500:
+ *        description: Error inesperado
+ * 
+ */
+router.get('/detenerTorneo/:id', detenerTorneo);
 
 export default router;

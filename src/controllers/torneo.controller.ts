@@ -450,6 +450,43 @@ export const reanudarTorneo = async (req: Request, res: Response): Promise<Respo
         });
 }
 
+export const detenerTorneo = async (req: Request, res: Response): Promise<Response> => {
+
+    const { id } = req.params;
+
+    const torneo = await Torneo.findOne({
+        where: { id: id }
+    })
+
+    if (!torneo) {
+        return res.status(404).json({
+            data_send: "",
+            num_status: 6,
+            msg_status: 'partida no Encontrada'
+        });
+    }
+    try {
+        let data = { gameId: id, action: "endGame" }; // ID de la partida a la que te quieres unir
+
+        const urlSocket = config.WS.HOST + ':' + config.WS.PORT
+
+        var socket = io(urlSocket);
+
+        socket.emit('joinGame', data);
+
+    } catch (error) {
+        console.log(error);
+
+    }
+
+
+    return res.status(201).json(
+        {
+            data_send: "torneo se a detenido",
+            num_status: 0,
+            msg_status: 'Exito.'
+        });
+}
 // editarpremios
 
 //TODO eliminar atletas
@@ -489,7 +526,7 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
 
 
     if (partidasActivas.length > 0) {
-        return res.status(402).json({
+        return res.status(201).json({
             data_send: partidasActivas,
             num_status: 6,
             msg_status: 'torneo ya tiene partidas activas'
