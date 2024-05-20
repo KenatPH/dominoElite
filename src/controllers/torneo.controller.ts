@@ -309,7 +309,7 @@ export const addAtletasAsistentes = async (req: Request, res: Response): Promise
     try {
 
 
-        const users = await AtletasTorneos.findAll({ where: { id: { [Op.in]: atletas }, } })
+        const users = await AtletasTorneos.findAll({ where: { torneoId:id ,userId: { [Op.in]: atletas }, } })
 
         users.forEach(async (user) => {
 
@@ -321,7 +321,7 @@ export const addAtletasAsistentes = async (req: Request, res: Response): Promise
         
         return res.status(201).json(
             {
-                data_send: '',
+                data_send: users,
                 num_status: 0,
                 msg_status: 'atletas asistentes marcados con con exito.'
             }
@@ -489,7 +489,7 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
 
     if (partidasActivas.length > 0) {
         return res.status(404).json({
-            data_send: "",
+            data_send: partidasActivas,
             num_status: 6,
             msg_status: 'torneo ya tiene partidas activas'
         });
@@ -498,15 +498,15 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
     try {
 
         const atletas = await AtletasTorneos.findAll({
-            where: { torneoId: id, asistente: true }, include: [
+            where: { torneoId: id, /**asistente: true*/ }, include: [
                 { model: User,  attributes: ['id', 'nombre', 'email', 'telefono'] }
             ] } )
 
-        // console.log(atletas);
+        console.log(atletas);
         
         const mesas = agruparEnMesas(atletas,4)
 
-        // console.log(mesas);
+        console.log(mesas);
         
         
         mesas.forEach(async(users:any,i) => {
@@ -518,7 +518,7 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
                 mesa: i
             });
     
-            await partida.save()
+            // await partida.save()
     
     
             // arreglos para hacer bulkCreate
@@ -527,10 +527,10 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
             const toColaNotificacion = users.map((u: any) => { return { tipo: 'mesaEnTorneo', userId: u.atleta.id, contexto: JSON.stringify({ mesa: i, email: u?.email, telefono: u?.telefono }) } })
     
             // crea todas las relaciones con la partida en BD
-            await JugadorPartida.bulkCreate(toCreatePartida)
+            // await JugadorPartida.bulkCreate(toCreatePartida)
             
             // // envia las notificaciones
-            await ColaNotificaciones.bulkCreate(toColaNotificacion)
+            // await ColaNotificaciones.bulkCreate(toColaNotificacion)
     
     
         });

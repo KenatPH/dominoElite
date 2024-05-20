@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { create, update, addAtletas, getTorneo, getListTorneo, generarPartidasTorneo, generarRondaTorneo, iniciarTorneo, pausarTorneo, reanudarTorneo } from "../controllers/torneo.controller";
+import { create, update, addAtletas, getTorneo, getListTorneo, generarPartidasTorneo, generarRondaTorneo, iniciarTorneo, pausarTorneo, reanudarTorneo, addAtletasAsistentes } from "../controllers/torneo.controller";
 
 const router = Router();
 
@@ -182,7 +182,7 @@ router.post('/addAtletas/:id', addAtletas);
  *      500:
  *        description: Error inesperado
  */
-router.post('/addAtletasAsistentes/:id', addAtletas);
+router.post('/addAtletasAsistentes/:id', addAtletasAsistentes);
 
 /**
  * @swagger
