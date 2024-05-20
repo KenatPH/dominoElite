@@ -1,6 +1,6 @@
 
 import { Router } from "express";
-import { update, deleteUser, forgotPassword, resetPassword } from "../controllers/user.controller";
+import { update, deleteUser, forgotPassword, resetPassword, getListUsuarios } from "../controllers/user.controller";
 
 const router = Router();
 router.put('/update/:id', update);
@@ -87,5 +87,23 @@ router.post('/forgotPassword', forgotPassword)
  *        description: Error inesperado
  */
 router.post('/reset/:token', resetPassword)
+
+/**
+ * @swagger
+ * /api/user/get:
+ *  get:
+ *    summary: Listar usuarios
+ *    tags:
+ *      - Torneo
+ *    produces:
+ *      - application/json
+ *    responses:
+ *      200:
+ *        description: ok
+ *      500:
+ *        description: Error inesperado
+ */
+router.get('/get/', getListUsuarios);
+
 
 export default router;

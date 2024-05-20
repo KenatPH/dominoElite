@@ -15,9 +15,9 @@ import config from "../config/config";
 export const getListTorneo = async (req: Request, res: Response): Promise<Response> => {
     const torneos = await Torneo.findAll({
         where: { publico: true }, order: [
-            ['updatedAt', 'ASC'],
+            ['updatedAt', 'DESC'],
         ],
-})
+    })
     try {
 
         return res.status(201).json(torneos);

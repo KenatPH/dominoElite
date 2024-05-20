@@ -164,3 +164,21 @@ export const resetPassword = async (req: Request, res: Response): Promise<Respon
 
 
 }
+
+
+export const getListUsuarios = async (req: Request, res: Response): Promise<Response> => {
+   const usuarios = await User.findAll({
+      where: { publico: true }, order: [
+         ['updatedAt', 'ASC'],
+      ],
+   })
+   try {
+
+      return res.status(201).json(usuarios);
+   } catch (error) {
+      return res.status(500).json({
+         message: error
+      });
+   }
+
+}
