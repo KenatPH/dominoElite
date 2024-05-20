@@ -518,7 +518,6 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
 
     const partidasActivas =  await Partida.findAll({
         where: { torneoId: id, estatus: 'activo' },
-        attributes: ["id"],
         include: [
             { model: User, as: 'jugadores', attributes: ['id'] }
         ]
@@ -579,8 +578,6 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
             include: [
                 { model: User, as: 'jugadores', attributes: ['id', 'nombre'] }
             ] 
-        }).then(()=>{
-
         })
         return res.status(201).json(
             {
