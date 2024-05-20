@@ -167,8 +167,7 @@ export const resetPassword = async (req: Request, res: Response): Promise<Respon
 
 
 export const getListUsuarios = async (req: Request, res: Response): Promise<Response> => {
-   const usuarios = await User.findAll({
-      where: { publico: true }, order: [
+   const usuarios = await User.findAll({ order: [
          ['updatedAt', 'ASC'],
       ],
    })

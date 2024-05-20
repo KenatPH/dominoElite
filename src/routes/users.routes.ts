@@ -94,7 +94,7 @@ router.post('/reset/:token', resetPassword)
  *  get:
  *    summary: Listar usuarios
  *    tags:
- *      - Torneo
+ *      - Usuarios
  *    produces:
  *      - application/json
  *    responses:
