@@ -58,16 +58,32 @@ export const getPartida = async (req: Request, res: Response): Promise<Response>
             msg_status: 'partida no Encontrada'
         });
     }
-
+    
     try {
+        
+        console.log(partida.tipo,"*********************************************");
+        
+        let jugadores
+        // todo agregar minusculas
+        if (partida.tipo == 'Local') {
+            jugadores = await JugadorPartida.findAll({ where: { partidaId:id }})
+            return res.status(201).json(
+                {
+                    data_send: { partida, jugadores },
+                    num_status: 0,
+                    msg_status: 'partida obtenida correctamente.'
+                }
+            );
+        }else{
+            return res.status(201).json(
+                {
+                    data_send: {partida, jugadores:partida.jugadores},
+                    num_status: 0,
+                    msg_status: 'partida obtenida correctamente.'
+                }
+            );
+        }
 
-        return res.status(201).json(
-            {
-                data_send: partida,
-                num_status: 0,
-                msg_status: 'partida obtenida correctamente.'
-            }
-        );
     } catch (error) {
         return res.status(500).json({
             message: error
@@ -143,13 +159,13 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
                 puntos:puntos
             });
 
-            partida.save()
+            await partida.save()
 
             
             jugadores.forEach(async (j:any)=> {
                 let JP
-
-                if (tipo != 'local'){
+                // todo agregarminusculas
+                if (tipo != 'Local'){
 
                     JP = new JugadorPartida({
                         partidaId: partida.id,
@@ -158,6 +174,7 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
                 }else{
                     JP = new JugadorPartida({
                         partidaId: partida.id,
+                        userId: null,
                         nombre: j
                     })
                 }
