@@ -465,7 +465,7 @@ export const iniciarPartida = async (req: Request, res: Response): Promise<Respo
 
 async function guardarpuntaje(usuario:any, tipo:string='') {
     const puntuacion = await Puntuacion.findOne({
-        where: { id: usuario }
+        where: { userId: usuario }
     });
     
 
@@ -482,13 +482,13 @@ async function guardarpuntaje(usuario:any, tipo:string='') {
     } else {
         if (tipo === 'ganador') {
             await Puntuacion.create({
-                id: usuario,
+                userId: usuario,
                 ganados: 1,
                 jugados: 1
             })
         }else{
             await Puntuacion.create({
-                id: usuario,
+                userId: usuario,
                 perdidos: 1,
                 jugados: 1
             })
