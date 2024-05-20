@@ -278,7 +278,7 @@ export const resultadoPartida = async (req: Request, res: Response): Promise<Res
     console.log(partidaId, ganador1, ganador2, puntajes, firma1, firma2, puntajeGanador, puntajePerdedor);
     
 
-    if (!partidaId || !ganador1 || !puntajeGanador || puntajePerdedor != undefined) {
+    if (!partidaId || !ganador1 || !puntajeGanador ) {
 
         return res.status(409).json({
             data_send: "",
