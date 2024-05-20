@@ -502,11 +502,11 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
                 { model: User,  attributes: ['id', 'nombre', 'email', 'telefono'] }
             ] } )
 
-        console.log(atletas);
+        // console.log(atletas);
         
         const mesas = agruparEnMesas(atletas,4)
 
-        console.log(mesas);
+        // console.log(mesas);
         
         
         mesas.forEach(async(users:any,i) => {
@@ -541,15 +541,17 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
             include: [
                 { model: User, as: 'jugadores', attributes: ['id', 'nombre'] }
             ] 
+        }).then(()=>{
+
         })
-    
         return res.status(201).json(
             {
-                data_send: partidas,
+                data_send: "",
                 num_status: 0,
                 msg_status: 'Torneo Actualizado correctamente.'
             }
         );
+    
     } catch (error) {
         console.log(error);
         
@@ -565,6 +567,23 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
 export const generarRondaTorneo = async (req: Request, res: Response): Promise<Response> => {
 
     const { id } = req.params;
+
+    const partidasActivas = await Partida.findAll({
+        where: { torneoId: id, estatus: 'activo' },
+        attributes: ["id"],
+        include: [
+            { model: User, as: 'jugadores', attributes: ['id'] }
+        ]
+    })
+
+
+    if (partidasActivas.length > 0) {
+        return res.status(402).json({
+            data_send: partidasActivas,
+            num_status: 6,
+            msg_status: 'torneo ya tiene partidas activas'
+        });
+    }
 
     try {
         

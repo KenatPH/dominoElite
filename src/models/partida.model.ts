@@ -114,13 +114,13 @@ class Partida extends Model {
 
     @Column({
         type: DataType.INTEGER,
-        defaultValue: 100
+        defaultValue: 0
     })
     declare puntajeGanador: number
 
     @Column({
         type: DataType.INTEGER,
-        defaultValue: 100
+        defaultValue: 0
     })
     declare puntajePerdedor: number
     

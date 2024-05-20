@@ -16,9 +16,20 @@ export const getListPartida = async (req: Request, res: Response): Promise<Respo
     const { torneo } = req.params;
         let partidas 
     if (torneo){
-        partidas = await Partida.findAll({ where: { torneoId: torneo }, include: [{ model: User, as: 'ganador1Info' }, { model: User, as: 'ganador2Info' }] })
+        partidas = await Partida.findAll({ where: { torneoId: torneo }, 
+            include: [
+            { model: User, as: 'ganador1Info' },
+            { model: User, as: 'ganador2Info' },
+            { model: User, as: 'jugadores', attributes: ['id', 'nombre'] }
+        ] })
     }else
-        partidas = await Partida.findAll({ include: [{ model: User, as: 'ganador1Info' }, { model: User, as: 'ganador2Info' }] })
+        partidas = await Partida.findAll({ 
+            include: [
+                { model: User, as: 'ganador1Info' },
+                { model: User, as: 'ganador2Info' },
+                { model: User, as: 'jugadores', attributes: ['id', 'nombre'] }
+            ] 
+        })
 
     try {
         return res.status(201).json(partidas);
@@ -35,8 +46,8 @@ export const getPartida = async (req: Request, res: Response): Promise<Response>
     const partida = await Partida.findOne({ 
         where: { id: id },
         include: [
-            { model: User, as: 'ganador1Info' },
-            { model: User, as: 'ganador2Info' },
+            // { model: User, as: 'ganador1Info' },
+            // { model: User, as: 'ganador2Info' },
             { model: User, as: 'jugadores', attributes:['id','nombre'] }
         ]
     })
