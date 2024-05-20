@@ -40,6 +40,12 @@ class JugadorPartida extends Model {
     })
     declare resultado: String
 
+    @Column({
+        type: DataType.STRING,
+        allowNull: true
+    })
+    declare nombre: String
+
     @BelongsTo(() => Partida)
     declare partida: Partida;
 

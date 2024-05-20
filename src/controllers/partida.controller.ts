@@ -147,11 +147,21 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
 
             
             jugadores.forEach(async (j:any)=> {
+                let JP
 
-                const JP = new JugadorPartida({
-                    partidaId: partida.id,
-                    userId:j
-                })
+                if (tipo != 'local'){
+
+                    JP = new JugadorPartida({
+                        partidaId: partida.id,
+                        userId:j
+                    })
+                }else{
+                    JP = new JugadorPartida({
+                        partidaId: partida.id,
+                        nombre: j
+                    })
+                }
+
 
                 JP.save()
 
@@ -410,6 +420,9 @@ export const rankingJugador = async (req: Request, res: Response): Promise<Respo
         ],
         having: [
             Sequelize.where(Sequelize.literal("partidasJugadas"), { [Op.gt]: 0 })
+        ],
+        order: [
+            ['average', 'DESC'],
         ]
     }) 
     
