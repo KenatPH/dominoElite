@@ -543,6 +543,14 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
             ] } )
 
         // console.log(atletas);
+
+        if (atletas.length % 4 !== 0){
+            return res.status(200).json({
+                data_send: "No se generaron partidas",
+                num_status: 6,
+                msg_status: 'jugadores incompletos'
+            });
+        }
         
         const mesas = agruparEnMesas(atletas,4)
 
@@ -555,7 +563,8 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
                 sistema: torneo.sistema,
                 tipo: "torneo",
                 torneoId: id,
-                mesa: i
+                mesa: i,
+                anotador: JSON.stringify({ puntajes: [{ equipo1: 0, borrado1: false, equipo2: 0, borrado2: false, info: "" }], totales: { equipo1: 0, equipo2: 0 } })
             });
     
             await partida.save()

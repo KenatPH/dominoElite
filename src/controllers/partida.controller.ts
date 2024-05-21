@@ -97,7 +97,14 @@ export const getpartidaActivaPorUsuario = async (req: Request, res: Response): P
 
     const partidas = await JugadorPartida.findAll({
         where: { userId: userId },
-        include: [{ model: Partida, as: 'partida', where: { estatus:'activo' }  }]
+        include: [
+            { model: Partida, as: 'partida', where: { estatus:'activo' } }
+        ],
+        order: [
+            ['updatedAt', 'DESC'],
+        ],
+        limit:1,
+
     })
    
     try {
@@ -158,7 +165,7 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
                 tipo,
                 torneo: (torneo && torneo.id) ? torneo.id:null,
                 puntos:puntos,
-                anotador:JSON.stringify({ puntajes:[], totales:{} })
+                anotador: JSON.stringify({ puntajes:[{ equipo1: 0, borrado1: false, equipo2: 0, borrado2: false, info: "" } ], totales:{ equipo1:0, equipo2:0 } })
             });
 
             await partida.save()
@@ -536,12 +543,17 @@ export const agregarPuntosMano = async (req: Request, res: Response): Promise<Re
         } else if (equipo === 2){
             mano = { equipo1: 0, borrado1: false, equipo2: puntos, borrado2: false, info: '' }
         }
+
         
         // console.log(anotador);
         let auxpuntaje: any[] = anotador.puntajes
-
-        auxpuntaje.push(mano)
-
+        
+        if (auxpuntaje.length === 1){
+            auxpuntaje[1] = mano
+        }else{
+            auxpuntaje.push(mano)
+        }
+        
         let totales = await calcularPuntosManos(auxpuntaje)
         
 
