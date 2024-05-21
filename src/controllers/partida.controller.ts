@@ -100,9 +100,6 @@ export const getpartidaActivaPorUsuario = async (req: Request, res: Response): P
         include: [
             { model: Partida, as: 'partida', where: { estatus:'activo' } }
         ],
-        order: [
-            ['updatedAt', 'DESC'],
-        ],
         limit:1,
 
     })
