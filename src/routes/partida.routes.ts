@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getListPartida, create, getPartida, asignaJugadorAPartida, resultadoPartida, rankingJugador, iniciarPartida, getpartidaActivaPorUsuario } from "../controllers/partida.controller";
+import { getListPartida, create, getPartida, asignaJugadorAPartida, resultadoPartida, rankingJugador, iniciarPartida, getpartidaActivaPorUsuario, agregarPuntosMano, tacharPuntosMano } from "../controllers/partida.controller";
 
 const router = Router();
 
@@ -118,6 +118,36 @@ router.get('/get/usuario/:userId', getpartidaActivaPorUsuario);
  */
 router.get('/iniciarPartida/:id', iniciarPartida);
 
+
+/**
+ * @swagger
+ * /api/partida/agregarPuntos/{id}:
+ *  post:
+ *    summary: agrega puntaje al anotador y lo envia a los demnas jugadores
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        type: string
+ *        minimum: 1
+ *        description: uuid de la partida
+ *    tags:
+ *      - Partidas
+ *    produces:
+ *      - application/json
+ *    responses:
+ *      200:
+ *        description: ok
+ *      400:
+ *        description: partida no encontrada
+ *      500:
+ *        description: Error inesperado
+ * 
+ */
+router.post('/agregarPuntos/:id', agregarPuntosMano);
+
+router.post('/tacharPuntos/:id', tacharPuntosMano);
+
 /**
  * @swagger
  * /api/partida/create:
@@ -199,5 +229,7 @@ router.post('/resultadoPartida', resultadoPartida);
 router.post('/asignaJugadores', asignaJugadorAPartida);
 
 router.get('/rankingJugador/:id?', rankingJugador);
+
+
 
 export default router;

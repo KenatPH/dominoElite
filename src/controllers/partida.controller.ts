@@ -13,6 +13,7 @@ import Puntuacion from "../models/puntuacion.model";
 
 
 export const getListPartida = async (req: Request, res: Response): Promise<Response> => {
+    
     const { torneo } = req.params;
         let partidas 
     if (torneo){
@@ -156,7 +157,8 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
                 duracionSegundos,
                 tipo,
                 torneo: (torneo && torneo.id) ? torneo.id:null,
-                puntos:puntos
+                puntos:puntos,
+                anotador:JSON.stringify({ puntajes:[], totales:{} })
             });
 
             await partida.save()
@@ -274,8 +276,6 @@ export const asignaJugadorAPartida = async (req: Request, res: Response): Promis
 export const resultadoPartida = async (req: Request, res: Response): Promise<Response> => {
 
     const { partidaId, ganador1, ganador2, puntajes, firma1,firma2, puntajeGanador, puntajePerdedor } = req.body;
-
-    console.log(partidaId, ganador1, ganador2, puntajes, firma1, firma2, puntajeGanador, puntajePerdedor);
     
 
     if (!partidaId || !ganador1 || !puntajeGanador ) {
@@ -288,7 +288,7 @@ export const resultadoPartida = async (req: Request, res: Response): Promise<Res
     }
 
     const partida = await Partida.findOne({
-        where: { id: partidaId, estatus:'activo' },
+        where: { id: partidaId , estatus:'activo' },
         include: [
             { model: User, as: 'jugadores', attributes: ['id', 'nombre'] }
         ]
@@ -495,6 +495,159 @@ export const iniciarPartida = async (req: Request, res: Response): Promise<Respo
         });
 }
 
+export const agregarPuntosMano = async (req: Request, res: Response): Promise<Response> => {
+
+    const { id } = req.params;
+    const { equipo, puntos } = req.body;
+
+    if (!equipo || !puntos) {
+
+        return res.status(409).json({
+            data_send: "",
+            num_status: 1,
+            msg_status: 'Los campos "equipo, puntos" son obligatorios'
+        })
+    }
+
+    const partida = await Partida.findOne({
+        where: { id: id }
+    })
+
+    if (!partida) {
+        return res.status(404).json({
+            data_send: "",
+            num_status: 6,
+            msg_status: 'partida no Encontrada'
+        });
+    }
+    try {
+        
+        let anotador = JSON.parse(partida.anotador)
+
+        let mano
+        if(equipo===1){
+            mano = { equipo1: puntos, borrado1: false, equipo2: 0, borrado2: false, info: '' }
+        } else if (equipo === 2){
+            mano = { equipo1: 0, borrado1: false, equipo2: puntos, borrado2: false, info: '' }
+        }
+        
+        // console.log(anotador);
+
+        anotador.puntajes.push(mano)
+        let totales = await calcularPuntosManos(anotador.puntajes)
+        
+        // console.log(totales);
+        anotador.totales = totales
+            
+        let data = { partidaId: id, action: "actualizarPuntos", puntaje: anotador }; // ID de la partida a la que te quieres unir
+        
+        const urlSocket = 'http://' + config.WS.HOST + ':' + config.WS.PORT
+        // console.log(urlSocket);
+        
+        var socket = io(urlSocket);
+
+        socket.emit('unirseAPartida', data);
+        socket.close
+
+        partida.anotador = JSON.stringify(anotador)
+        await partida.save()
+
+    } catch (error) {
+        console.log(error);
+        
+    }
+    return res.status(201).json(
+        {
+            data_send: "puntos agregados",
+            num_status: 0,
+            msg_status: 'Exito.'
+        });
+}
+
+export const tacharPuntosMano = async (req: Request, res: Response): Promise<Response> => {
+
+    const { id } = req.params;
+    const { equipo, indice, jugador } = req.body;
+
+    if (!equipo || !indice) {
+
+        return res.status(409).json({
+            data_send: "",
+            num_status: 1,
+            msg_status: 'Los campos "equipo, puntos" son obligatorios'
+        })
+    }
+
+    const partida = await Partida.findOne({
+        where: { id: id }
+    })
+
+    if (!partida) {
+        return res.status(404).json({
+            data_send: "",
+            num_status: 6,
+            msg_status: 'partida no Encontrada'
+        });
+    }
+    try {
+
+        let anotador = JSON.parse(partida.anotador)
+
+        let tachar 
+        if (equipo === 1) {
+            // mano = { equipo1: puntos, borrado1: false, equipo2: 0, borrado2: false, info: '' }
+            tachar = 'borrado1'
+        } else if (equipo === 2) {
+            // mano = { equipo1: 0, borrado1: false, equipo2: puntos, borrado2: false, info: '' }
+            tachar = 'borrado2'
+        }
+
+        // console.log(anotador);
+        
+        let auxpuntaje: any[] = anotador.puntajes
+
+        // console.log(auxpuntaje);
+        
+        if (tachar){
+            console.log(auxpuntaje[parseInt(indice)]);
+            
+            auxpuntaje[parseInt(indice)][tachar] = true
+            auxpuntaje[parseInt(indice)].info = 'borro '+ jugador
+        }
+
+
+        let totales = await calcularPuntosManos(auxpuntaje)
+
+        // console.log(totales);
+        anotador.puntajes = auxpuntaje
+        anotador.totales = totales
+
+        let data = { partidaId: id, action: "actualizarPuntos", puntaje: anotador }; // ID de la partida a la que te quieres unir
+
+        const urlSocket = 'http://' + config.WS.HOST + ':' + config.WS.PORT
+        // console.log(urlSocket);
+
+        var socket = io(urlSocket);
+
+        socket.emit('unirseAPartida', data);
+        socket.close
+
+        partida.anotador = JSON.stringify(anotador)
+
+        await partida.save()
+
+    } catch (error) {
+        console.log(error);
+
+    }
+    return res.status(201).json(
+        {
+            data_send: "puntos actrualizados",
+            num_status: 0,
+            msg_status: 'Exito.'
+        });
+}
+
 
 async function guardarpuntaje(usuario:any, tipo:string='') {
     const puntuacion = await Puntuacion.findOne({
@@ -527,4 +680,20 @@ async function guardarpuntaje(usuario:any, tipo:string='') {
             })
         }
     }
+}
+
+const calcularPuntosManos = async(data:any)=>{
+    let equipo1 = 0;
+    let equipo2 = 0;
+
+    for (const obj of data) {
+        if (!obj.borrado1) {
+            equipo1 += obj.equipo1;
+        }
+        if (!obj.borrado2) {
+            equipo2 += obj.equipo2;
+        }
+    }
+
+    return { equipo1, equipo2 };
 }

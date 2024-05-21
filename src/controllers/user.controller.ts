@@ -167,9 +167,11 @@ export const resetPassword = async (req: Request, res: Response): Promise<Respon
 
 
 export const getListUsuarios = async (req: Request, res: Response): Promise<Response> => {
+   const { pag } = req.params;
    const usuarios = await User.findAll({ order: [
          ['updatedAt', 'ASC'],
       ],
+      offset: (pag) ? parseInt(pag) : 1, limit: 30
    })
    try {
 

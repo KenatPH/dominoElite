@@ -125,6 +125,12 @@ class Partida extends Model {
     declare puntajePerdedor: number
     
 
+    @Column({
+        type: DataType.TEXT('long'),
+        defaultValue: `[]`
+    })
+    declare anotador: string
+
 
 
     @BelongsTo(() => User, "ganador2")

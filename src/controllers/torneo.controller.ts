@@ -13,11 +13,14 @@ import { io } from "socket.io-client";
 import config from "../config/config";
 
 export const getListTorneo = async (req: Request, res: Response): Promise<Response> => {
+    const { pag } = req.params;
+
     const torneos = await Torneo.findAll({
         where: { publico: true },
          order: [
             ['updatedAt', 'DESC'],
         ],
+        offset: (pag)? parseInt(pag):1, limit: 30
     })
     try {
 
@@ -352,13 +355,13 @@ export const iniciarTorneo = async (req: Request, res: Response): Promise<Respon
         });
     }
     try {
-        let data = { gameId: id, action: "initGame", time: torneo.duracionSegundos }; // ID de la partida a la que te quieres unir
+        let data = { torneoId: id, action: "iniciarTorneo", time: torneo.duracionSegundos }; // ID de la partida a la que te quieres unir
 
         const urlSocket = config.WS.HOST + ':' + config.WS.PORT
 
         var socket = io(urlSocket);
 
-        socket.emit('joinGame', data);
+        socket.emit('unirseAtorneo', data);
 
     } catch (error) {
         console.log(error);
@@ -390,13 +393,13 @@ export const pausarTorneo = async (req: Request, res: Response): Promise<Respons
         });
     }
     try {
-        let data = { gameId: id, action: "pauseGame", time: torneo.duracionSegundos }; // ID de la partida a la que te quieres unir
+        let data = { torneoId: id, action: "pausarTorneo", time: torneo.duracionSegundos }; // ID de la partida a la que te quieres unir
 
         const urlSocket = config.WS.HOST + ':' + config.WS.PORT
 
         var socket = io(urlSocket);
 
-        socket.emit('joinGame', data);
+        socket.emit('unirseAtorneo', data);
 
     } catch (error) {
         console.log(error);
@@ -428,13 +431,13 @@ export const reanudarTorneo = async (req: Request, res: Response): Promise<Respo
         });
     }
     try {
-        let data = { gameId: id, action: "resumeGame" }; // ID de la partida a la que te quieres unir
+        let data = { torneoId: id, action: "reaunudarTorneo" }; // ID de la partida a la que te quieres unir
 
         const urlSocket = config.WS.HOST + ':' + config.WS.PORT
 
         var socket = io(urlSocket);
 
-        socket.emit('joinGame', data);
+        socket.emit('unirseAtorneo', data);
 
     } catch (error) {
         console.log(error);
@@ -466,13 +469,13 @@ export const detenerTorneo = async (req: Request, res: Response): Promise<Respon
         });
     }
     try {
-        let data = { gameId: id, action: "endGame" }; // ID de la partida a la que te quieres unir
+        let data = { torneoId: id, action: "finalizarTorneo" }; // ID de la partida a la que te quieres unir
 
         const urlSocket = config.WS.HOST + ':' + config.WS.PORT
 
         var socket = io(urlSocket);
 
-        socket.emit('joinGame', data);
+        socket.emit('unirseAtorneo', data);
 
     } catch (error) {
         console.log(error);
