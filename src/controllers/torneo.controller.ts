@@ -13,14 +13,14 @@ import { io } from "socket.io-client";
 import config from "../config/config";
 
 export const getListTorneo = async (req: Request, res: Response): Promise<Response> => {
-    const { pag } = req.params;
+    // const { pag } = req.params;
 
     const torneos = await Torneo.findAll({
         where: { publico: true },
          order: [
             ['updatedAt', 'DESC'],
         ],
-        offset: (pag)? parseInt(pag):1, limit: 30
+        // offset: (pag)? parseInt(pag):1, limit: 30
     })
     try {
 
