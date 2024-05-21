@@ -127,7 +127,7 @@ class Partida extends Model {
 
     @Column({
         type: DataType.TEXT('long'),
-        defaultValue: `[]`
+        defaultValue: `{ puntajes:[], totales:{} }`
     })
     declare anotador: string
 
