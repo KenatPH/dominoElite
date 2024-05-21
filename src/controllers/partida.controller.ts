@@ -523,6 +523,12 @@ export const agregarPuntosMano = async (req: Request, res: Response): Promise<Re
     try {
         
         let anotador = JSON.parse(partida.anotador)
+        
+        if (anotador && !anotador.puntajes){
+
+            anotador = { puntajes: [], totales: {} }
+        }
+                
 
         let mano
         if(equipo===1){
@@ -532,17 +538,20 @@ export const agregarPuntosMano = async (req: Request, res: Response): Promise<Re
         }
         
         // console.log(anotador);
+        let auxpuntaje: any[] = anotador.puntajes
 
-        anotador.puntajes.push(mano)
-        let totales = await calcularPuntosManos(anotador.puntajes)
+        auxpuntaje.push(mano)
+
+        let totales = await calcularPuntosManos(auxpuntaje)
         
-        // console.log(totales);
+
+        anotador.puntajes = auxpuntaje
         anotador.totales = totales
             
         let data = { partidaId: id, action: "actualizarPuntos", puntaje: anotador }; // ID de la partida a la que te quieres unir
         
-        const urlSocket = 'http://' + config.WS.HOST + ':' + config.WS.PORT
-        // console.log(urlSocket);
+        const urlSocket = config.WS.HOST + ':' + config.WS.PORT
+        console.log(urlSocket);
         
         var socket = io(urlSocket);
 
@@ -624,7 +633,7 @@ export const tacharPuntosMano = async (req: Request, res: Response): Promise<Res
 
         let data = { partidaId: id, action: "actualizarPuntos", puntaje: anotador }; // ID de la partida a la que te quieres unir
 
-        const urlSocket = 'http://' + config.WS.HOST + ':' + config.WS.PORT
+        const urlSocket = config.WS.HOST + ':' + config.WS.PORT
         // console.log(urlSocket);
 
         var socket = io(urlSocket);
@@ -642,12 +651,11 @@ export const tacharPuntosMano = async (req: Request, res: Response): Promise<Res
     }
     return res.status(201).json(
         {
-            data_send: "puntos actrualizados",
+            data_send: "puntos actualizada",
             num_status: 0,
             msg_status: 'Exito.'
         });
 }
-
 
 async function guardarpuntaje(usuario:any, tipo:string='') {
     const puntuacion = await Puntuacion.findOne({
