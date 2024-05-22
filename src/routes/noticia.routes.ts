@@ -4,7 +4,7 @@ import { create, getListNoticia, getNoticia, update } from "../controllers/notic
 
 const router = Router();
 
-router.get('/get/:pag', getListNoticia);
+router.get('/getlist/:pag', getListNoticia);
 router.get('/get/:id', getNoticia);
 
 /**

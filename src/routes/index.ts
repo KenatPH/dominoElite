@@ -23,7 +23,7 @@ router.use('/api/torneo',  torneoRoutes);
 router.use('/api/club', clubsRoutes);
 router.use('/api/partida', partidasRouter);
 router.use('/api/webpush', webpushRouter);
-router.use('/api/webpush', noticiaRouter);
+router.use('/api/noticia', noticiaRouter);
 
 export default router;
 /**
