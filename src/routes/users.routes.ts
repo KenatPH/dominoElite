@@ -103,7 +103,9 @@ router.post('/reset/:token', resetPassword)
  *      500:
  *        description: Error inesperado
  */
-router.get('/get/', getListUsuarios);
+router.get('/get/:arbitro?', getListUsuarios);
+
+
 
 
 export default router;

@@ -59,6 +59,8 @@ export const getTorneo = async (req: Request, res: Response): Promise<Response> 
 
     try {
 
+        torneo.duracionMinutos = torneo.duracionSegundos / 60
+
         return res.status(201).json(
             {
                 data_send: { torneo, partidas },

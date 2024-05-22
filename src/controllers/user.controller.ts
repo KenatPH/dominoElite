@@ -167,11 +167,17 @@ export const resetPassword = async (req: Request, res: Response): Promise<Respon
 
 
 export const getListUsuarios = async (req: Request, res: Response): Promise<Response> => {
-   const { pag } = req.params;
-   const usuarios = await User.findAll({ order: [
+   const { arbitro } = req.params;
+   let where={}
+   if(arbitro){
+      where = { esArbitro:true }
+   }
+   const usuarios = await User.findAll({ 
+      where:where,
+      order: [
          ['updatedAt', 'ASC'],
       ],
-      offset: (pag) ? parseInt(pag) : 1, limit: 30
+      // offset: (pag) ? parseInt(pag) : 1, limit: 30
    })
    try {
 

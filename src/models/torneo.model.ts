@@ -70,9 +70,15 @@ class Torneo extends Model {
     declare publico: boolean
 
     @Column({
-        type: DataType.DATE
+        type: DataType.DATE 
     })
     declare fecha:any
+
+    @Column({
+        type: DataType.INTEGER,
+        defaultValue: 1
+    })
+    declare rondaActual: Number
 
     @ForeignKey(() => User)
     @Column({
@@ -97,6 +103,8 @@ class Torneo extends Model {
 
     @HasMany(() => PremiosTorneos)
     declare premios: PremiosTorneos[];
+
+    declare duracionMinutos:number;
 
 }
 

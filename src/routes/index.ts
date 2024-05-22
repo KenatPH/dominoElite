@@ -11,7 +11,8 @@ const router = express.Router()
 
 router.use('/auth', authRoutes);
 
-router.use('/api/user', passport.authenticate('jwt', { session: false }), userRoutes);
+// router.use('/api/user', passport.authenticate('jwt', { session: false }), userRoutes);
+router.use('/api/user',  userRoutes);
 
 // router.use('/api/torneo', passport.authenticate('jwt', { session: false }), torneoRoutes);
 

@@ -6,9 +6,15 @@ const router = Router();
 
 /**
  * @swagger
- * /api/torneo/get:
+ * /api/torneo/get/{pag}:
  *  get:
  *    summary: Listar torneo
+ *    parameters:
+ *      - in: path
+ *        name: pag
+ *        type: string
+ *        minimum: 1
+ *        description: pagina para listar
  *    tags:
  *      - Torneo
  *    produces:
