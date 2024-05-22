@@ -12,6 +12,7 @@ import { Server } from 'socket.io';
 
 //imported routes
 import router from './routes'
+import path from 'path'
 
 
 
@@ -40,7 +41,9 @@ app.use(passport.session());
 
 passport.use(passportMiddleware)
 
-app.use(express.static('src/public'));
+// app.use(express.static('src/public'));
+
+app.use('/img', express.static(path.join(__dirname, 'public/images')));
 
 //routes
 app.get('/', (req, res) => {
