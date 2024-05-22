@@ -104,6 +104,11 @@ class User extends Model {
    })
    declare resetPasswordExpires: number
 
+   @Column({
+      type: DataType.STRING
+   })
+   declare imagen: String
+
    @BelongsTo(() => Club)
    declare club: Club;
 

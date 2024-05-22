@@ -96,7 +96,12 @@ class Torneo extends Model {
         type: DataType.INTEGER,
         defaultValue: 0
     })
-    declare entrada: number 
+    declare entrada: number
+    
+    @Column({
+        type: DataType.STRING
+    })
+    declare imagen: String
 
     @BelongsToMany(() => User, () => AtletasTorneos)
     declare atletas: User[];
