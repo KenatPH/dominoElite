@@ -12,7 +12,7 @@ import { saveImage } from "../utils/utils";
 export const update = async (req: Request, res: Response): Promise<Response> => {
    try {
       const { id } = req.params;
-      const { nombre, telefono, estatus, perfil, imagen  } = req.body;
+      const { nombre, telefono, estatus, perfil, esArbitro, imagen  } = req.body;
 
       if (!id) {
          return res.status(409).json({
@@ -38,6 +38,7 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
       user.telefono = (telefono)? telefono:user.telefono;      
       user.perfil = (perfil)? perfil:user.perfil;
       user.estatus = (estatus)? estatus:user.estatus;
+      user.esArbitro = (esArbitro) ? esArbitro : user.esArbitro
 
 
       if(imagen){

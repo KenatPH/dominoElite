@@ -164,7 +164,7 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
 
         let minutosAsegundos = (minutos) ? minutos * 60 : 0
 
-        let duracionSegundos = ((segundos) ? segundos : 1200 ) + minutosAsegundos
+        let duracionSegundos = ((segundos) ? segundos : 0 ) + minutosAsegundos
     
         if (jugadores.length > 0){
 
