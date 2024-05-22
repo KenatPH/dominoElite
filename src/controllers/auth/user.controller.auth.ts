@@ -103,7 +103,7 @@ export const login = async (req: Request, res: Response) => {
         return res.status(200).json({
           data_send: "",         
           num_status:5,
-          msg_status: '¡Contraseña invalida!'         
+           msg_status: '¡Usuario o contraseña inválido!'         
         })
       }
     

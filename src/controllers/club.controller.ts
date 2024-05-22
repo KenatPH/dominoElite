@@ -2,12 +2,35 @@ import express, { Request, Response } from "express";
 import User from "../models/users.model";
 import Club from "../models/club.model";
 import SolicitudMembresia from "../models/solicitudMembresia.model";
+import { where } from "sequelize";
+import { Op } from "sequelize";
 
 export const getListClub = async (req: Request, res: Response): Promise<Response> => {
-    const torneos = await Club.findAll()
+
+    const { pag, filtro } = req.params;
+    let where = {}
+
+    console.log(filtro);
+    
+
+    if(filtro){
+        where = { nombre: {[Op.like]: `%${filtro}%`} }
+    }
+
+    const clubes = await Club.findAll({
+            where:where,
+            offset: (pag) ? parseInt(pag) : 1, limit: 30 
+        }
+    )
+
+
     try {
 
-        return res.status(201).json(torneos);
+        return res.status(200).json({
+            data_send: clubes,
+            num_status: 1,
+            msg_status: 'completado'
+        })
     } catch (error) {
         return res.status(500).json({
             message: error

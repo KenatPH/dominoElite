@@ -4,7 +4,7 @@ import { create, getClub, getListClub, update, createSolicitud, updateSolicitud 
 
 const router = Router();
 
-router.get('/get', getListClub);
+router.get('/getList/:pag/:filtro?', getListClub);
 router.get('/get/:id', getClub);
 
 /**
