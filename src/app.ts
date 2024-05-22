@@ -44,6 +44,7 @@ passport.use(passportMiddleware)
 // app.use(express.static('src/public'));
 
 app.use('/img', express.static(path.join(__dirname, 'public/images')));
+// app.use('/img', express.static('src/public'));
 
 //routes
 app.get('/', (req, res) => {

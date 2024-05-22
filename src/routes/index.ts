@@ -5,6 +5,7 @@ import torneoRoutes from './torneo.routes'
 import clubsRoutes from './club.routes'
 import partidasRouter from './partida.routes'
 import webpushRouter from './webpush.routes'
+import noticiaRouter from './noticia.routes'
 import passport from 'passport';
 
 const router = express.Router()
@@ -22,7 +23,7 @@ router.use('/api/torneo',  torneoRoutes);
 router.use('/api/club', clubsRoutes);
 router.use('/api/partida', partidasRouter);
 router.use('/api/webpush', webpushRouter);
-
+router.use('/api/webpush', noticiaRouter);
 
 export default router;
 /**

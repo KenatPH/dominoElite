@@ -176,7 +176,8 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
                 tipo,
                 torneo: (torneo && torneo.id) ? torneo.id:null,
                 puntos:puntos,
-                anotador: JSON.stringify({ puntajes:[{ equipo1: 0, borrado1: false, equipo2: 0, borrado2: false, info: "" } ], totales:{ equipo1:0, equipo2:0 } })
+                anotador: JSON.stringify({ puntajes:[{ equipo1: 0, borrado1: false, equipo2: 0, borrado2: false, info: "" } ], totales:{ equipo1:0, equipo2:0 } }),
+                creadorId
             });
 
             await partida.save()
