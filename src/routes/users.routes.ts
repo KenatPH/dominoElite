@@ -3,11 +3,10 @@ import { Router } from "express";
 import { update, deleteUser, forgotPassword, resetPassword, getListUsuarios, getUser } from "../controllers/user.controller";
 
 const router = Router();
-router.put('/update/:id', update);
 /**
  * @swagger
- * /api/user/update:
- *  put:
+ * /api/user/update/{id}:
+ *  post:
  *    summary: Actualizar Usuario
  *    security:
  *      - apiAuth: []
@@ -21,6 +20,8 @@ router.put('/update/:id', update);
  *      500:
  *        description: Error inesperado
  */
+router.post('/update/:id', update);
+
 router.delete('/delete/:id', deleteUser);
 
 router.get('/buscar', (req, res) => {

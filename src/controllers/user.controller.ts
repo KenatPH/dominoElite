@@ -6,12 +6,21 @@ import nodemailer from 'nodemailer';
 import { v4 as uuidv4 } from 'uuid';
 import { Op } from "sequelize";
 import Club from "../models/club.model";
+import { saveImage } from "../utils/utils";
 
 
 export const update = async (req: Request, res: Response): Promise<Response> => {
    try {
       const { id } = req.params;
-      const { nombre, telefono, estatus, perfil } = req.body;
+      const { nombre, telefono, estatus, perfil, imagen  } = req.body;
+
+      if (!id) {
+         return res.status(409).json({
+            data_send: "",
+            num_status: 1,
+            msg_status: 'Los campos "id" son obligatorios'
+         })
+      }
 
       // Find the user by userId
       const user = await User.findOne({ where: { id: id } });
@@ -25,15 +34,18 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
       }
 
       // Update the user properties
-      user.nombre = nombre;      
-      user.telefono = telefono;      
-      user.perfil = perfil;
-      user.estatus = estatus;
-      /* user.email = email || user.email;
-      user.clave = clave || user.clave;
-      user.origen = origen || user.origen;
-      user.tokenFacebook = tokenFacebook || user.tokenFacebook;
-      user.tokenGoogle = tokenGoogle || user.tokenGoogle; */
+      user.nombre = (nombre)? nombre:user.nombre;      
+      user.telefono = (telefono)? telefono:user.telefono;      
+      user.perfil = (perfil)? perfil:user.perfil;
+      user.estatus = (estatus)? estatus:user.estatus;
+
+
+      if(imagen){
+       await saveImage(user.imagen, imagen).then((nombreImagen:any)=>{
+         user.imagen = nombreImagen
+       })
+      }
+
       
 
       // Save the updated user

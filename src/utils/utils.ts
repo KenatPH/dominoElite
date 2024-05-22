@@ -33,7 +33,7 @@ export const saveImage = (OldImageName:String = '', base64Data:String) => {
 
 
         } else {
-            res('')
+            res(OldImageName)
         }
     })
 }

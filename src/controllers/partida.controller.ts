@@ -44,6 +44,14 @@ export const getListPartida = async (req: Request, res: Response): Promise<Respo
 export const getPartida = async (req: Request, res: Response): Promise<Response> => {
     const { id } = req.params;
 
+    if (!id ) {
+        return res.status(409).json({
+            data_send: "",
+            num_status: 1,
+            msg_status: 'Los campos "id" son obligatorios'
+        })
+    }
+
     const partida = await Partida.findOne({ 
         where: { id: id },
         include: [

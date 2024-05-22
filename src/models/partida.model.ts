@@ -131,6 +131,11 @@ class Partida extends Model {
     })
     declare anotador: string
 
+    @Column({
+        type: DataType.STRING
+    })
+    declare creadorId: String;
+
 
 
     @BelongsTo(() => User, "ganador2")
