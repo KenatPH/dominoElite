@@ -10,18 +10,20 @@ export const getListClub = async (req: Request, res: Response): Promise<Response
     const { pag, filtro } = req.params;
     let where = {}
 
-    console.log(filtro);
+    // console.log(filtro);
     
 
     if(filtro){
         where = { nombre: {[Op.like]: `%${filtro}%`} }
     }
 
-    const clubes = await Club.findAll({
+    const clubes = await Club.findAndCountAll({
             where:where,
-            offset: (pag) ? parseInt(pag) : 1, limit: 30 
+            offset: (pag) ? parseInt(pag) : 0, limit: 30 
         }
     )
+
+    
 
 
     try {
