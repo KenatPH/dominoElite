@@ -100,10 +100,10 @@ export const login = async (req: Request, res: Response) => {
    //validamos que la clave sea correcta
    user.comparePassword(clave).then((match: boolean) => {
       if(!match) {
-        return res.status(409).json({
+        return res.status(200).json({
           data_send: "",         
           num_status:5,
-          msg_status: 'Credentials do not match!'         
+          msg_status: '¡Contraseña invalida!'         
         })
       }
     
