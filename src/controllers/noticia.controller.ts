@@ -3,7 +3,14 @@ import User from "../models/users.model";
 import Noticia from "../models/noticia.model";
 
 export const getListNoticia = async (req: Request, res: Response): Promise<Response> => {
-    const noticias = await Noticia.findAll()
+
+    const { pag } = req.params;
+
+    const noticias = await Noticia.findAll(
+        {
+            offset: (pag) ? parseInt(pag) : 1, limit: 30
+        }
+    )
     try {
 
         return res.status(201).json(noticias);
