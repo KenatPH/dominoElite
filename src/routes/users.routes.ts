@@ -1,6 +1,6 @@
 
 import { Router } from "express";
-import { update, deleteUser, forgotPassword, resetPassword, getListUsuarios } from "../controllers/user.controller";
+import { update, deleteUser, forgotPassword, resetPassword, getListUsuarios, getUser } from "../controllers/user.controller";
 
 const router = Router();
 router.put('/update/:id', update);
@@ -22,6 +22,7 @@ router.put('/update/:id', update);
  *        description: Error inesperado
  */
 router.delete('/delete/:id', deleteUser);
+
 router.get('/buscar', (req, res) => {
    res.send('Buscando usuario')
 });
@@ -104,6 +105,32 @@ router.post('/reset/:token', resetPassword)
  *        description: Error inesperado
  */
 router.get('/get/:arbitro?', getListUsuarios);
+
+
+/**
+ * @swagger
+ * /api/user/perfil/{id}:
+ *  get:
+ *    summary: obtiene usuario
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        type: string
+ *        minimum: 1
+ *        description: uuid del usuario
+ *    tags:
+ *      - Usuarios
+ *    produces:
+ *      - application/json
+ *    responses:
+ *      200:
+ *        description: ok
+ *      500:
+ *        description: Error inesperado
+ */
+router.get('/perfil/:id?', getUser);
+
 
 
 

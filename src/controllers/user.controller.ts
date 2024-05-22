@@ -5,6 +5,7 @@ import {sendMail, getTemplateHtml, transporter} from "../config/config.mail";
 import nodemailer from 'nodemailer';
 import { v4 as uuidv4 } from 'uuid';
 import { Op } from "sequelize";
+import Club from "../models/club.model";
 
 
 export const update = async (req: Request, res: Response): Promise<Response> => {
@@ -165,7 +166,6 @@ export const resetPassword = async (req: Request, res: Response): Promise<Respon
 
 }
 
-
 export const getListUsuarios = async (req: Request, res: Response): Promise<Response> => {
    const { arbitro } = req.params;
    let where={}
@@ -188,4 +188,63 @@ export const getListUsuarios = async (req: Request, res: Response): Promise<Resp
       });
    }
 
+}
+
+
+export const getUser = async (req: Request, res: Response): Promise<Response> => {
+   const { id } = req.params;
+
+   const usuario = await User.findOne({
+      where: { id: id }
+   })
+   if (!usuario) {
+      return res.status(404).json({
+         data_send: "",
+         num_status: 6,
+         msg_status: 'usuario no Encontrado'
+      });
+   }
+
+   try {
+
+      if (usuario.perfil === 'club'){
+
+         const club = await Club.findOne(
+            {
+               where: { id: id },
+               include: [
+                  {
+                     model: User,
+                     as: 'atletas',
+                     attributes: ['id', 'nombre']
+                  }
+               ]
+            })
+
+
+         return res.status(201).json(
+            {
+               data_send: { usuario, club },
+               num_status: 0,
+               msg_status: 'partida obtenida correctamente.'
+            }
+         );
+
+      }
+
+      return res.status(201).json(
+         {
+            data_send: { usuario },
+            num_status: 0,
+            msg_status: 'partida obtenida correctamente.'
+         }
+      );
+
+
+
+   } catch (error) {
+      return res.status(500).json({
+         message: error
+      });
+   }
 }

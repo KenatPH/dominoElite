@@ -78,7 +78,7 @@ class Torneo extends Model {
         type: DataType.INTEGER,
         defaultValue: 1
     })
-    declare rondaActual: Number
+    declare rondaActual: any
 
     @ForeignKey(() => User)
     @Column({

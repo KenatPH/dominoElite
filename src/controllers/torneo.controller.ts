@@ -248,6 +248,22 @@ export const addAtletas = async (req: Request, res: Response): Promise<Response>
         });       
     }
 
+    const partidasActivas = await Partida.findAll({
+        where: { torneoId: id, estatus: 'activo' },
+        include: [
+            { model: User, as: 'jugadores', attributes: ['id'] }
+        ]
+    })
+
+
+    if (partidasActivas.length > 0) {
+        return res.status(201).json({
+            data_send: partidasActivas,
+            num_status: 6,
+            msg_status: 'torneo ya no puedes inscribirte'
+        });
+    }
+
     
     try {
         let arregloDeAtletasTorneo:any[] = []
@@ -560,12 +576,13 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
         
         
         mesas.forEach(async(users:any,i) => {
+            const mesa = i+1
             
             const partida = new Partida({
                 sistema: torneo.sistema,
                 tipo: "torneo",
                 torneoId: id,
-                mesa: i,
+                mesa: mesa,
                 anotador: JSON.stringify({ puntajes: [{ equipo1: 0, borrado1: false, equipo2: 0, borrado2: false, info: "" }], totales: { equipo1: 0, equipo2: 0 } })
             });
     
@@ -573,9 +590,9 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
     
     
             // arreglos para hacer bulkCreate
-            const toCreatePartida = users.map((u: any) => { return { partidaId: partida.id, userId: u.atleta.id, mesa: i } })
+            const toCreatePartida = users.map((u: any) => { return { partidaId: partida.id, userId: u.atleta.id, mesa: mesa } })
     
-            const toColaNotificacion = users.map((u: any) => { return { tipo: 'mesaEnTorneo', userId: u.atleta.id, contexto: JSON.stringify({ mesa: i, email: u?.email, telefono: u?.telefono }) } })
+            const toColaNotificacion = users.map((u: any) => { return { tipo: 'mesaEnTorneo', userId: u.atleta.id, contexto: JSON.stringify({ mesa: mesa, email: u?.email, telefono: u?.telefono }) } })
     
             // crea todas las relaciones con la partida en BD
             await JugadorPartida.bulkCreate(toCreatePartida)
@@ -586,13 +603,9 @@ export const generarPartidasTorneo = async (req: Request, res: Response): Promis
     
         });
     
-    
-        const partidas = await Partida.findAll({
-            where: { torneoId: id },
-            include: [
-                { model: User, as: 'jugadores', attributes: ['id', 'nombre'] }
-            ] 
-        })
+
+        torneo.rondaActual = torneo.rondaActual + 1
+        await torneo.save
         return res.status(201).json(
             {
                 data_send: "",
