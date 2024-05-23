@@ -4,7 +4,7 @@ import Partida from "../models/partida.model";
 import User from "../models/users.model";
 import Torneo from "../models/torneo.model";
 import JugadorPartida from "../models/jugadorPartida.model";
-import { Sequelize } from 'sequelize-typescript';
+import { Sequelize } from 'sequelize';
 import { Op } from "sequelize";
 import { io } from "socket.io-client";
 import config from "../config/config";
@@ -418,15 +418,8 @@ export const resultadoPartida = async (req: Request, res: Response): Promise<Res
 
 export const rankingJugador = async (req: Request, res: Response): Promise<Response> => {
 
-    let { tipo, id } = req.params;
+    let { pag, id } = req.params;
 
-    let selectClausule = ''
-
-    // if(!tipo){
-        selectClausule = `AND (p.tipo = 'torneo') `
-    // }else{
-    //     selectClausule = `AND p.tipo = '${tipo}'  `
-    // }
     let where = {}
 
     if(id){
@@ -445,32 +438,18 @@ export const rankingJugador = async (req: Request, res: Response): Promise<Respo
 
     }
 
-        // Find the user by userId
-    
-    const users = await User.findAll({
-        where:where,
-        attributes:  [
-            'id',
-            'nombre',
-            [Sequelize.literal('(SELECT COUNT(jp.id) FROM jugadores_partidas jp inner join partidas p on p.id = jp.partidaId WHERE jp.userId = `User`.`id` ' + selectClausule +' )'), 'partidasJugadas'],
-            [Sequelize.literal('(SELECT COUNT(jp.id) FROM jugadores_partidas jp inner join partidas p on p.id = jp.partidaId WHERE jp.userId = `User`.`id` AND jp.resultado = \'ganado\' ' + selectClausule +'  )'), 'partidasGanadas'],
-            [Sequelize.literal('(SELECT COUNT(jp.id) FROM jugadores_partidas jp inner join partidas p on p.id = jp.partidaId WHERE jp.userId = `User`.`id` AND jp.resultado = \'perdido\' ' + selectClausule +'  )'), 'partidasPerdidas'],
-            [Sequelize.literal('averageGanadas(\`User\`.\`id\`, \'' + 'torneo' +'\')'), 'average']
-        ],
-        having: [
-            Sequelize.where(Sequelize.literal("partidasJugadas"), { [Op.gt]: 0 })
-        ],
+    const puntuacion = await Puntuacion.findAndCountAll({
+        include: [{ model: User, attributes: ['nombre', 'id'], where: where  }],
         order: [
-            ['average', 'DESC'],
-        ]
-    }) 
-    
-
+            ['ranking', 'ASC']
+        ],
+        offset: (pag) ? (parseInt(pag) - 1) * 5 : 1, limit: 5
+    })
     
 
     return res.status(201).json(
         {
-            data_send: users,
+            data_send: puntuacion,
             num_status: 0,
             msg_status: 'Exito.'
         });
@@ -682,6 +661,7 @@ export const tacharPuntosMano = async (req: Request, res: Response): Promise<Res
 }
 
 async function guardarpuntaje(usuario:any, tipo:string='') {
+
     const puntuacion = await Puntuacion.findOne({
         where: { userId: usuario }
     });
@@ -711,6 +691,11 @@ async function guardarpuntaje(usuario:any, tipo:string='') {
                 jugados: 1
             })
         }
+
+
+
+        sequelize.query
+        
     }
 }
 

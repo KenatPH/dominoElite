@@ -1,5 +1,6 @@
-import { Table, Column, Model, HasMany, PrimaryKey, ForeignKey, BelongsToMany } from 'sequelize-typescript';
+import { Table, Column, Model, HasMany, PrimaryKey, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import { DataType } from 'sequelize-typescript';
+import User from './users.model';
 
 @Table({
     timestamps: true,
@@ -16,10 +17,10 @@ class Puntuacion extends Model {
     declare id: string;
 
 
-    @Column({
-        type: DataType.STRING
-    })
-    declare userId: string
+    @ForeignKey(() => User)
+    @Column
+    declare userId: String;
+
 
     @Column({
         type: DataType.INTEGER,
@@ -45,6 +46,14 @@ class Puntuacion extends Model {
     })
     declare average: number
 
+    @Column({
+        type: DataType.INTEGER,
+        defaultValue: 0
+    })
+    declare ranking: number
+
+    @BelongsTo(() => User)
+    declare user: User;
     
 
 }

@@ -228,7 +228,7 @@ router.post('/resultadoPartida', resultadoPartida);
  */
 router.post('/asignaJugadores', asignaJugadorAPartida);
 
-router.get('/rankingJugador/:id?', rankingJugador);
+router.get('/rankingJugador/:pag/:id?', rankingJugador);
 
 
 

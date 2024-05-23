@@ -13,17 +13,19 @@ import ColaNotificaciones from './models/colaNotificaciones.model';
 import puntuacion from './models/puntuacion.model';
 import Noticia from './models/noticia.model';
 
+export const sequelize = new Sequelize({
+   host: config.DB.HOST,
+   database: config.DB.DBNAME,
+   dialect: 'mysql',
+   username: config.DB.USER,
+   password: config.DB.PASW,
+   port: Number(config.DB.PORT),
+   // models: [__dirname + '/models'], // or [Player, Team],
+});
+
 export const connectDB = async () => {
    try {
-      const sequelize = new Sequelize({
-         host:config.DB.HOST,
-         database: config.DB.DBNAME,
-         dialect: 'mysql',
-         username: config.DB.USER,
-         password: config.DB.PASW,
-         port: Number(config.DB.PORT),
-         // models: [__dirname + '/models'], // or [Player, Team],
-      });
+
       sequelize.addModels([
             SolicitudMembresia,
             User,

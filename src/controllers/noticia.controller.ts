@@ -8,7 +8,7 @@ export const getListNoticia = async (req: Request, res: Response): Promise<Respo
 
     const noticias = await Noticia.findAll(
         {
-            offset: (pag) ? parseInt(pag) : 1, limit: 30
+            offset: (pag) ? parseInt(pag)*10 : 1, limit: 10
         }
     )
     try {

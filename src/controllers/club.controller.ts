@@ -19,7 +19,7 @@ export const getListClub = async (req: Request, res: Response): Promise<Response
 
     const clubes = await Club.findAndCountAll({
             where:where,
-            offset: (pag) ? parseInt(pag) - 1 : 0, limit: 30 
+            offset: (pag) ? (parseInt(pag)-1) * 5 : 1, limit: 5
         }
     )
 
