@@ -39,6 +39,13 @@ class Torneo extends Model {
     declare tipo: String
 
     @Column({
+        type: DataType.BOOLEAN,
+        allowNull: false,
+        defaultValue: 0
+    })
+    declare federado: boolean
+
+    @Column({
         type: DataType.INTEGER
     })
     declare duracionSegundos: number 

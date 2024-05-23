@@ -133,7 +133,7 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
             arbitro: (arbitroDB)? arbitro.id:null ,
             duracionSegundos,
             clubId: (clubDB)? club.id:null,
-            tipo: (federado)? 'Federado':'club'
+            federado: (federado)? 1:0
             
         });
 
