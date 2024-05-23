@@ -694,7 +694,7 @@ async function guardarpuntaje(usuario:any, tipo:string='') {
 
 
 
-        sequelize.query
+        // sequelize.query
         
     }
 }

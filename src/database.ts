@@ -12,6 +12,7 @@ import SubscripcionesPush from './models/subscripcionesPush.model';
 import ColaNotificaciones from './models/colaNotificaciones.model';
 import puntuacion from './models/puntuacion.model';
 import Noticia from './models/noticia.model';
+import Notificacion from './models/notificacion.model';
 
 export const sequelize = new Sequelize({
    host: config.DB.HOST,
@@ -38,7 +39,8 @@ export const connectDB = async () => {
             SubscripcionesPush,
             ColaNotificaciones,
             puntuacion,
-            Noticia
+            Noticia,
+            Notificacion
          ]);
       
    } catch (error) {
