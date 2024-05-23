@@ -4,12 +4,12 @@ import Partida from "../models/partida.model";
 import User from "../models/users.model";
 import Torneo from "../models/torneo.model";
 import JugadorPartida from "../models/jugadorPartida.model";
-import { Sequelize } from 'sequelize';
 import { Op } from "sequelize";
 import { io } from "socket.io-client";
 import config from "../config/config";
 import ColaNotificaciones from "../models/colaNotificaciones.model";
 import Puntuacion from "../models/puntuacion.model";
+import { sequelize } from "../database";
 
 
 export const getListPartida = async (req: Request, res: Response): Promise<Response> => {
@@ -671,10 +671,12 @@ async function guardarpuntaje(usuario:any, tipo:string='') {
         if(tipo==='ganador'){
             puntuacion.jugados = puntuacion.jugados++
             puntuacion.ganados = puntuacion.ganados++
+            puntuacion.average = (puntuacion.ganados * 100) / puntuacion.jugados
             puntuacion.save()
         }else{
             puntuacion.jugados = puntuacion.jugados++
             puntuacion.perdidos = puntuacion.perdidos++
+            puntuacion.average = (puntuacion.ganados * 100) / puntuacion.jugados
             puntuacion.save()
         }
     } else {
@@ -682,7 +684,8 @@ async function guardarpuntaje(usuario:any, tipo:string='') {
             await Puntuacion.create({
                 userId: usuario,
                 ganados: 1,
-                jugados: 1
+                jugados: 1,
+                average: (1 * 100.0) / 1
             })
         }else{
             await Puntuacion.create({
@@ -692,10 +695,9 @@ async function guardarpuntaje(usuario:any, tipo:string='') {
             })
         }
 
-
-
-        // sequelize.query
-        
+        sequelize.query('CALL rankingJugadores();').then( (response) => {
+            // res.json(response);
+        })
     }
 }
 

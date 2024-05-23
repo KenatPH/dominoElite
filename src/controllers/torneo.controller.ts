@@ -78,7 +78,7 @@ export const getTorneo = async (req: Request, res: Response): Promise<Response> 
 export const create = async (req: Request, res: Response): Promise<Response> => {
 
         const { nombre, ubicacion, puntos, rondas, publico, club,
-            sistema, arbitro, minutos, segundos, premios, fecha, entrada } = req.body;
+            sistema, arbitro, minutos, segundos, premios, fecha, entrada, federado } = req.body;
         
         if ( !ubicacion || !puntos || !rondas || !sistema ){
 
@@ -133,6 +133,7 @@ export const create = async (req: Request, res: Response): Promise<Response> => 
             arbitro: (arbitroDB)? arbitro.id:null ,
             duracionSegundos,
             clubId: (clubDB)? club.id:null,
+            tipo: (federado)? 'Federado':'club'
             
         });
 
